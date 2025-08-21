@@ -20,10 +20,7 @@ import { SelectedTranslationContext } from "../contexts/SelectedTranslationConte
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.5),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.7),
-  },
+  backgroundColor: alpha(theme.palette.background.default, 1),
   width: "3em",
 }));
 const SearchInputBase = styled(InputBase)(({ theme }) => ({
