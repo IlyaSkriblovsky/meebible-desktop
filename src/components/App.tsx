@@ -56,7 +56,7 @@ function Shell() {
     >
       <Sidebar width={sidebarWidth} appVersion={appVersion} />
 
-      <Box sx={{ flex: 1, height: "100%", overflow: "auto", p: 0 }}>
+      <Box sx={{ flex: 1, height: "100%", overflowY: "auto", p: 0 }}>
         <Home />
       </Box>
     </Box>
