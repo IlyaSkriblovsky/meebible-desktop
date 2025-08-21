@@ -1,6 +1,7 @@
-import { createContext, useState } from "react";
+import { createContext } from "react";
 import { OnlyChildren } from "../utils.ts";
 import { noop } from "ts-essentials";
+import { useLocalStorage } from "react-use";
 
 interface SelectedTranslation {
   transCode: string;
@@ -20,8 +21,17 @@ export const SelectedTranslationContext =
   createContext<SelectedTranslation>(defaultValue);
 
 export function SelectedTranslationProvider({ children }: OnlyChildren) {
-  const [transCode, setTransCode] = useState(defaultValue.transCode);
-  const [langCode, setLangCode] = useState(defaultValue.langCode);
+  const [transCodeOrEmpty, setTransCode] = useLocalStorage(
+    "transCode",
+    defaultValue.transCode,
+  );
+  const [langCodeOrEmpty, setLangCode] = useLocalStorage(
+    "langCode",
+    defaultValue.langCode,
+  );
+
+  const transCode = transCodeOrEmpty ?? defaultValue.transCode;
+  const langCode = langCodeOrEmpty ?? defaultValue.langCode;
 
   const switchTranslation = (newTransCode: string, newLangCode: string) => {
     setTransCode(newTransCode);

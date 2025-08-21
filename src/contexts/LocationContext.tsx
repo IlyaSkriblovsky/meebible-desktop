@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { OnlyChildren } from "../utils.ts";
 import { BooksListContext } from "./BooksContext.tsx";
+import { useLocalStorage } from "react-use";
 
 interface Location {
   bookCode: string;
@@ -38,7 +39,12 @@ export const LocationContext = createContext<LocationContextType>({
 });
 
 export function LocationProvider({ children }: OnlyChildren) {
-  const [location, setLocation] = useState(defaultLocation);
+  const [locationOrEmpty, setLocation] = useLocalStorage(
+    "location",
+    defaultLocation,
+  );
+  const location = locationOrEmpty ?? defaultLocation;
+
   const { chapterNo, bookCode } = location;
 
   const booksInfo = useContext(BooksListContext);
