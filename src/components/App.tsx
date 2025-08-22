@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import "../App.css";
 import { Sidebar } from "./Sidebar.tsx";
-import { useAppVersion } from "../utils.ts";
+import { useAppVersion, useDisableContextMenu } from "../utils.ts";
 import { Topbar } from "./Topbar.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
 import { LocationProvider } from "../contexts/LocationContext.tsx";
@@ -21,6 +21,7 @@ import {
 import { useMount } from "react-use";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
+import { StartupSender } from "./StartupSender.tsx";
 
 function Home() {
   const chapterText = useContext(ChapterTextContext);
@@ -69,6 +70,8 @@ export function App() {
       getCurrentWindow().show().then();
     }, 20);
   });
+
+  useDisableContextMenu();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 

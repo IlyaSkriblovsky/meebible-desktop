@@ -21,3 +21,9 @@ export async function fetchAndParseXML(url: string): Promise<Document> {
     "text/xml",
   );
 }
+
+export function useDisableContextMenu() {
+  if (import.meta.env.PROD) {
+    document.oncontextmenu = (event) => event.preventDefault();
+  }
+}
