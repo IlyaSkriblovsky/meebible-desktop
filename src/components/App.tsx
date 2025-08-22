@@ -97,6 +97,7 @@ export function App() {
   return (
     <TranslationsListProvider>
       <SelectedTranslationProvider>
+        <StartupSender />
         <BooksListProvider>
           <LocationProvider>
             <ChapterTextProvider>
