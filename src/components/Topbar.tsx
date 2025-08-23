@@ -17,13 +17,13 @@ import { LocationContext } from "../contexts/LocationContext.tsx";
 import { BooksListContext } from "../contexts/BooksContext.tsx";
 import { SelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
 
-const Search = styled("div")(({ theme }) => ({
+const ChapterInput = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.background.default, 1),
   width: "3em",
 }));
-const SearchInputBase = styled(InputBase)(({ theme }) => ({
+const ChapterInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1),
@@ -102,9 +102,9 @@ export function Topbar() {
         <IconButton onClick={goPrevChapter} disabled={!hasPrevChapter}>
           <ChevronLeft />
         </IconButton>
-        <Search>
-          <SearchInputBase value={chapterNo} onChange={onChange} />
-        </Search>
+        <ChapterInput>
+          <ChapterInputBase value={chapterNo} onChange={onChange} />
+        </ChapterInput>
         <IconButton onClick={goNextChapter} disabled={!hasNextChapter}>
           <ChevronRight />
         </IconButton>
