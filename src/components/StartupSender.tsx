@@ -1,8 +1,9 @@
-import { useAsync, useLocalStorage } from "react-use";
+import { fetch } from "@tauri-apps/plugin-http";
 import { type } from "@tauri-apps/plugin-os";
 import { useContext } from "react";
+import { useAsync, useLocalStorage } from "react-use";
+
 import { SelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
-import { fetch } from "@tauri-apps/plugin-http";
 
 export function StartupSender() {
   const [installId] = useLocalStorage("installId", crypto.randomUUID());

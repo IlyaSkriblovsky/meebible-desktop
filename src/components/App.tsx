@@ -1,5 +1,3 @@
-import * as React from "react";
-import { useContext } from "react";
 import {
   Box,
   createTheme,
@@ -7,21 +5,25 @@ import {
   ThemeProvider,
   useMediaQuery,
 } from "@mui/material";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import * as React from "react";
+import { useContext } from "react";
+
 import "../App.css";
-import { Sidebar } from "./Sidebar.tsx";
-import { useAppVersion, useDisableContextMenu } from "../utils.ts";
-import { Topbar } from "./Topbar.tsx";
-import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
-import { LocationProvider } from "../contexts/LocationContext.tsx";
+import { useMount } from "react-use";
+
 import { BooksListProvider } from "../contexts/BooksContext.tsx";
 import {
   ChapterTextContext,
   ChapterTextProvider,
 } from "../contexts/ChapterTextContext.tsx";
-import { useMount } from "react-use";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
+import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
+import { useAppVersion, useDisableContextMenu } from "../utils.ts";
+import { Sidebar } from "./Sidebar.tsx";
 import { StartupSender } from "./StartupSender.tsx";
+import { Topbar } from "./Topbar.tsx";
 
 function Home() {
   const chapterText = useContext(ChapterTextContext);
@@ -32,8 +34,8 @@ function Home() {
       {chapterText.loaded ? (
         <Box
           className="bible-text"
-          sx={{ px: 3 }}
           dangerouslySetInnerHTML={{ __html: chapterText.text }}
+          sx={{ px: 3 }}
         />
       ) : null}
     </>
@@ -55,7 +57,7 @@ function Shell() {
         bgcolor: "background.default",
       }}
     >
-      <Sidebar width={sidebarWidth} appVersion={appVersion} />
+      <Sidebar appVersion={appVersion} width={sidebarWidth} />
 
       <Box sx={{ flex: 1, height: "100%", overflowY: "auto", p: 0 }}>
         <Home />

@@ -1,8 +1,9 @@
-import { createContext, useContext } from "react";
-import { LocationContext } from "./LocationContext.tsx";
-import { useAsync } from "react-use";
 import { fetch } from "@tauri-apps/plugin-http";
+import { createContext, useContext } from "react";
+import { useAsync } from "react-use";
+
 import { OnlyChildren } from "../utils.ts";
+import { LocationContext } from "./LocationContext.tsx";
 import { SelectedTranslationContext } from "./SelectedTranslationContext.tsx";
 
 type ChapterTextContextType =

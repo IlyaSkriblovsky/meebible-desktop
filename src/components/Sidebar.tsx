@@ -6,8 +6,9 @@ import {
   Typography,
 } from "@mui/material";
 import { BookOpen } from "lucide-react";
-import { BooksListContext } from "../contexts/BooksContext.tsx";
 import { useContext } from "react";
+
+import { BooksListContext } from "../contexts/BooksContext.tsx";
 import { LocationContext } from "../contexts/LocationContext.tsx";
 
 function BookList() {
@@ -23,8 +24,8 @@ function BookList() {
         ? booksContext.books.map((bookInfo) => (
             <ListItemButton
               key={bookInfo.code}
-              selected={bookInfo.code === bookCode}
               onClick={() => goToBook(bookInfo.code, 1)}
+              selected={bookInfo.code === bookCode}
             >
               <ListItemText primary={bookInfo.name} />
             </ListItemButton>
@@ -79,7 +80,7 @@ export function Sidebar(props: {
         <BookList />
 
         <Box sx={{ p: 1.5 }}>
-          <Typography variant="caption" color="text.secondary">
+          <Typography color="text.secondary" variant="caption">
             {props.appVersion != null ? `v${props.appVersion}` : null}
           </Typography>
         </Box>

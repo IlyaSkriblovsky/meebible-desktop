@@ -3,19 +3,16 @@ import {
   AppBar,
   IconButton,
   InputBase,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   styled,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { TranslationsListContext } from "../contexts/TranslationsListContext.tsx";
 import { ChangeEvent, useCallback, useContext } from "react";
-import { LocationContext } from "../contexts/LocationContext.tsx";
+
 import { BooksListContext } from "../contexts/BooksContext.tsx";
-import { SelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
+import { LocationContext } from "../contexts/LocationContext.tsx";
+import { TranslationSelector } from "./TranslationSelector.tsx";
 
 const ChapterInput = styled("div")(({ theme }) => ({
   position: "relative",
@@ -31,48 +28,6 @@ const ChapterInputBase = styled(InputBase)(({ theme }) => ({
     textAlign: "center",
   },
 }));
-
-function TranslationSelector() {
-  const translationsContext = useContext(TranslationsListContext);
-  const { transCode, langCode, switchTranslation } = useContext(
-    SelectedTranslationContext,
-  );
-
-  const onChange = useCallback(
-    (event: SelectChangeEvent) => {
-      const [transCode, langCode] = event.target.value.split("|");
-      switchTranslation(transCode, langCode);
-    },
-    [translationsContext],
-  );
-
-  // FIXME: sorting
-  // FIXME: filter by language?
-  return (
-    <>
-      {translationsContext.loaded ? (
-        <Select value={`${transCode}|${langCode}`} onChange={onChange}>
-          {translationsContext.translations.flatMap((trans) =>
-            trans.languages.map((transLang) => (
-              <MenuItem
-                key={`${trans.code}|${transLang.language.code}`}
-                value={`${trans.code}|${transLang.language.code}`}
-                sx={{ flexDirection: "column", alignItems: "start" }}
-              >
-                <Typography sx={{ display: "block" }}>
-                  {transLang.name}
-                </Typography>
-                <Typography variant={"caption"}>
-                  {transLang.language.selfname} | {transLang.language.name}
-                </Typography>
-              </MenuItem>
-            )),
-          )}
-        </Select>
-      ) : null}
-    </>
-  );
-}
 
 export function Topbar() {
   const {
@@ -93,25 +48,26 @@ export function Topbar() {
   );
 
   return (
-    <AppBar position="sticky" color="default" elevation={0} enableColorOnDark>
+    <AppBar color="default" elevation={0} enableColorOnDark position="sticky">
       <Toolbar>
         <Typography variant="h6">
           {booksInfo.loaded ? booksInfo.bookByCode[bookCode]?.name : null}
         </Typography>
 
-        <IconButton onClick={goPrevChapter} disabled={!hasPrevChapter}>
+        <IconButton disabled={!hasPrevChapter} onClick={goPrevChapter}>
           <ChevronLeft />
         </IconButton>
         <ChapterInput>
-          <ChapterInputBase value={chapterNo} onChange={onChange} />
+          <ChapterInputBase onChange={onChange} value={chapterNo} />
         </ChapterInput>
-        <IconButton onClick={goNextChapter} disabled={!hasNextChapter}>
+        <IconButton disabled={!hasNextChapter} onClick={goNextChapter}>
           <ChevronRight />
         </IconButton>
 
         <div style={{ flex: 1 }} />
 
         <TranslationSelector />
+        {/*<TranslationSelector />*/}
       </Toolbar>
     </AppBar>
   );

@@ -1,7 +1,7 @@
-import { useAsync } from "react-use";
 import { getVersion } from "@tauri-apps/api/app";
 import { fetch } from "@tauri-apps/plugin-http";
 import { ReactNode } from "react";
+import { useAsync } from "react-use";
 
 export interface OnlyChildren {
   children: ReactNode;
@@ -26,4 +26,11 @@ export function useDisableContextMenu() {
   if (import.meta.env.PROD) {
     document.oncontextmenu = (event) => event.preventDefault();
   }
+}
+
+export function lowerCaseRemoveDiacritics(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }

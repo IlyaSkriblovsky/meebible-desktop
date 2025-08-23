@@ -1,19 +1,22 @@
 import { createContext } from "react";
 import { useAsync } from "react-use";
+
 import { fetchAndParseXML, OnlyChildren } from "../utils.ts";
 
-interface Language {
+export interface Language {
   code: string;
   name: string; // english name
   selfname: string; // self name in native language
+  translations: TranslationLanguage[];
 }
 
-interface TranslationLanguage {
+export interface TranslationLanguage {
   language: Language;
+  translation: Translation;
   name: string; // Translation name in specified language
 }
 
-interface Translation {
+export interface Translation {
   code: string;
   sourceUrl: string | null; // URL to the source of the translation
   copyright: string | null; // Copyright information
@@ -53,7 +56,7 @@ function parseLanguagesAndTranslations(xml: Document): LangsAndTranslations {
     }
 
     const selfname = langElem.getAttribute("selfname") ?? name;
-    const language = { code, name, selfname };
+    const language = { code, name, selfname, translations: [] };
     languageByCode[code] = language;
     languages.push(language);
   });
@@ -70,7 +73,14 @@ function parseLanguagesAndTranslations(xml: Document): LangsAndTranslations {
       return;
     }
 
-    const transLanguages: TranslationLanguage[] = [];
+    const translation: Translation = {
+      code,
+      sourceUrl,
+      copyright,
+      rtl,
+      languages: [],
+    };
+
     transElem.querySelectorAll("transLang").forEach((transLangElem) => {
       const langCode = transLangElem.getAttribute("code");
       const name = transLangElem.getAttribute("name");
@@ -84,19 +94,16 @@ function parseLanguagesAndTranslations(xml: Document): LangsAndTranslations {
         return;
       }
 
-      transLanguages.push({
+      const transLang: TranslationLanguage = {
         language: languageByCode[langCode],
+        translation,
         name,
-      });
+      };
+      translation.languages.push(transLang);
+      languageByCode[langCode]?.translations.push(transLang);
     });
 
-    translations.push({
-      code,
-      sourceUrl,
-      copyright,
-      rtl,
-      languages: transLanguages,
-    });
+    translations.push(translation);
   });
 
   return { languages, translations };

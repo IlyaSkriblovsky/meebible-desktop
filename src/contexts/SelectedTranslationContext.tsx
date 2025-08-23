@@ -1,11 +1,22 @@
-import { createContext } from "react";
-import { OnlyChildren } from "../utils.ts";
-import { noop } from "ts-essentials";
+import { createContext, useContext } from "react";
 import { useLocalStorage } from "react-use";
+import { noop } from "ts-essentials";
+
+import { OnlyChildren } from "../utils.ts";
+import {
+  Language,
+  Translation,
+  TranslationLanguage,
+  TranslationsListContext,
+} from "./TranslationsListContext.tsx";
 
 interface SelectedTranslation {
   transCode: string;
   langCode: string;
+
+  language: Language | null;
+  translation: Translation | null;
+  transLang: TranslationLanguage | null;
 
   switchTranslation(transCode: string, langCode: string): void;
 }
@@ -13,6 +24,10 @@ interface SelectedTranslation {
 const defaultValue: SelectedTranslation = {
   transCode: "nwt",
   langCode: "e",
+
+  language: null,
+  translation: null,
+  transLang: null,
 
   switchTranslation: noop,
 };
@@ -33,6 +48,19 @@ export function SelectedTranslationProvider({ children }: OnlyChildren) {
   const transCode = transCodeOrEmpty ?? defaultValue.transCode;
   const langCode = langCodeOrEmpty ?? defaultValue.langCode;
 
+  const translationsContext = useContext(TranslationsListContext);
+  const translation = translationsContext.loaded
+    ? (translationsContext.translations.find((t) => t.code === transCode) ??
+      null)
+    : null;
+  const language = translationsContext.loaded
+    ? (translationsContext.languages.find((l) => l.code === langCode) ?? null)
+    : null;
+  const transLang =
+    translation?.languages.find(
+      (transLang) => transLang.language.code === langCode,
+    ) ?? null;
+
   const switchTranslation = (newTransCode: string, newLangCode: string) => {
     setTransCode(newTransCode);
     setLangCode(newLangCode);
@@ -43,6 +71,9 @@ export function SelectedTranslationProvider({ children }: OnlyChildren) {
       value={{
         transCode,
         langCode,
+        language,
+        translation,
+        transLang,
         switchTranslation,
       }}
     >
