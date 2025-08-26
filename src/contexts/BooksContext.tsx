@@ -4,7 +4,7 @@ import { useAsync } from "react-use";
 import { fetchAndParseXML, OnlyChildren } from "../utils.ts";
 import { SelectedTranslationContext } from "./SelectedTranslationContext.tsx";
 
-interface BookInfo {
+export interface BookInfo {
   bookNumber: number;
   code: string;
   name: string;
