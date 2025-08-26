@@ -2,8 +2,7 @@
 
 MeeBible is a simple, modern, and cross-platform desktop Bible application built with Tauri and React. It is a desktop implementation of the [MeeBible](https://github.com/IlyaSkriblovsky/meebible) project.
 
-![App Screenshot](app-icon.png)
-*(Note: This is the app icon. A proper screenshot of the application will be added later.)*
+<img src="docs/screenshot-0.1.5.png" width="600"/>
 
 ## Features
 
