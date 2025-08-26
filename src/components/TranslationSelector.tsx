@@ -115,9 +115,8 @@ export function TranslationSelector() {
     <>
       <Button
         endIcon={<KeyboardArrowDownIcon />}
-        id="demo-customized-button"
         onClick={handleClick}
-        variant={"outlined"}
+        variant="outlined"
       >
         {transLang?.name ?? "Loading..."}
       </Button>

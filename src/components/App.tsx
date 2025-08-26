@@ -1,10 +1,12 @@
 import {
+  alpha,
   Box,
   createTheme,
   CssBaseline,
   ThemeProvider,
   useMediaQuery,
 } from "@mui/material";
+import { blue, cyan, deepOrange, indigo, purple } from "@mui/material/colors";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import * as React from "react";
 import { useContext } from "react";
@@ -20,8 +22,7 @@ import {
 import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
-import { useAppVersion, useDisableContextMenu } from "../utils.ts";
-import { Sidebar } from "./Sidebar.tsx";
+import { useDisableContextMenu } from "../utils.ts";
 import { StartupSender } from "./StartupSender.tsx";
 import { Topbar } from "./Topbar.tsx";
 
@@ -35,7 +36,7 @@ function Home() {
         <Box
           className="bible-text"
           dangerouslySetInnerHTML={{ __html: chapterText.text }}
-          sx={{ px: 3 }}
+          sx={{ px: 3, pb: 3, pt: 1 }}
         />
       ) : null}
     </>
@@ -43,27 +44,46 @@ function Home() {
 }
 
 function Shell() {
-  const sidebarWidth = 240;
-
-  const appVersion = useAppVersion();
-
   return (
     <Box
       sx={{
-        display: "flex",
         width: "100vw",
         height: "100vh",
         overflow: "hidden",
         bgcolor: "background.default",
+        overflowY: "auto",
       }}
     >
-      <Sidebar appVersion={appVersion} width={sidebarWidth} />
-
-      <Box sx={{ flex: 1, height: "100%", overflowY: "auto", p: 0 }}>
-        <Home />
-      </Box>
+      <Home />
     </Box>
   );
+}
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    chapter: Palette["primary"];
+    book1: Palette["primary"];
+    book2: Palette["primary"];
+    book3: Palette["primary"];
+    book4: Palette["primary"];
+  }
+
+  interface PaletteOptions {
+    chapter?: PaletteOptions["primary"];
+    book1?: PaletteOptions["primary"];
+    book2?: PaletteOptions["primary"];
+    book3?: PaletteOptions["primary"];
+    book4?: PaletteOptions["primary"];
+  }
+}
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    chapter: true;
+    book1: true;
+    book2: true;
+    book3: true;
+    book4: true;
+  }
 }
 
 export function App() {
@@ -77,6 +97,8 @@ export function App() {
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
+  const mainColor = prefersDarkMode ? blue[200] : blue["700"];
+
   const theme = React.useMemo(
     () =>
       createTheme({
@@ -89,6 +111,12 @@ export function App() {
           },
         },
         palette: {
+          primary: { main: mainColor },
+          chapter: { main: alpha(mainColor, 0.2) },
+          book1: { main: alpha(indigo[300], 0.2) },
+          book2: { main: alpha(cyan[200], 0.2) },
+          book3: { main: alpha(purple[200], 0.2) },
+          book4: { main: alpha(deepOrange[200], 0.2) },
           mode: prefersDarkMode ? "dark" : "light",
         },
         shape: { borderRadius: 14 },
