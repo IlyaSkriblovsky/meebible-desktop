@@ -9,16 +9,10 @@ html, body {
     max-width: 800px;
     margin: auto;
 
-    body[inverted=true] {
-        background: black;
-        color: white;
-    }
-
-
+    /* FIXME */
     body[rtl=true] {
         direction: rtl;
     }
-
 
     .verse {
         display: inline;
