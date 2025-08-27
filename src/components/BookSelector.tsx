@@ -1,5 +1,12 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { Box, Button, ButtonOwnProps, Divider, Popover, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonOwnProps,
+  Divider,
+  Popover,
+  Typography,
+} from "@mui/material";
 import { MouseEvent, useContext, useState } from "react";
 
 import { BookInfo, BooksListContext } from "../contexts/BooksContext.tsx";
@@ -14,7 +21,7 @@ const groups: [ButtonOwnProps["color"], string[]][] = [
   ["book1", ["mt", "mr", "lu", "joh"]],
   ["book2", ["ac"]],
   ["book3", ["ro", "1co", "2co", "ga", "eph", "php", "col", "1th", "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude"]],
-  ["book4", ["re"],
+  ["book4", ["re"]],
 ];
 
 // prettier-ignore
@@ -135,7 +142,7 @@ export function BookSelector() {
                 maxWidth: "900px",
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(8em, 8em))",
-                gap: "12px"
+                gap: "12px",
               }}
             >
               {booksInPart.map((book: BookInfo) => (
