@@ -6,15 +6,15 @@ import { BookInfo, BooksListContext } from "../contexts/BooksContext.tsx";
 import { LocationContext } from "../contexts/LocationContext.tsx";
 
 // prettier-ignore
-const groups: [ButtonOwnProps"color"'], string[]][] = [
-  "book1"', ["ge", "ex", "le", "nu", "de"]],
-  "book2"', ["jos", "jg", "ru", "1sa", "2sa", "1ki", "2ki", "1ch", "2ch", "ezr", "ne", "es"]],
-  "book3"', ["job", "ps", "pr", "ec", "ca"]],
-  "book4"', ["isa", "jer", "la", "eze", "da", "ho", "joe", "am", "ob", "jon", "mic", "na", "hab", "zep", "hag", "zec", "mal"]],
-  "book1"', ["mt", "mr", "lu", "joh"]],
-  "book2"', ["ac"]],
-  "book3"', ["ro", "1co", "2co", "ga", "eph", "php", "col", "1th", "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude"]],
-  "book4"', ["re"],
+const groups: [ButtonOwnProps["color"], string[]][] = [
+  ["book1", ["ge", "ex", "le", "nu", "de"]],
+  ["book2", ["jos", "jg", "ru", "1sa", "2sa", "1ki", "2ki", "1ch", "2ch", "ezr", "ne", "es"]],
+  ["book3", ["job", "ps", "pr", "ec", "ca"]],
+  ["book4", ["isa", "jer", "la", "eze", "da", "ho", "joe", "am", "ob", "jon", "mic", "na", "hab", "zep", "hag", "zec", "mal"]],
+  ["book1", ["mt", "mr", "lu", "joh"]],
+  ["book2", ["ac"]],
+  ["book3", ["ro", "1co", "2co", "ga", "eph", "php", "col", "1th", "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude"]],
+  ["book4", ["re"],
 ];
 
 // prettier-ignore
@@ -24,8 +24,8 @@ const parts = [
     "da", "ho", "joe", "am", "ob", "jon", "mic", "na", "hab", "zep", "hag", "zec", "mal"],
 
   ["mt", "mr", "lu", "joh", "ac", "ro", "1co", "2co", "ga", "eph", "php", "col", "1th",
-    "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude", "re",
-;]
+    "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude", "re"],
+];
 
 const groupByBookCode: Record<string, ButtonOwnProps["color"] | undefined> =
   Object.fromEntries(
@@ -35,7 +35,7 @@ const groupByBookCode: Record<string, ButtonOwnProps["color"] | undefined> =
           yield [bookCode, groupColor];
         }
       }
-    })(,
+    })(),
   );
 
 type Part = "hebrew" | "greek" | undefined;
@@ -47,7 +47,7 @@ const partByBookCode: Record<string, Part> = Object.fromEntries(
         yield [bookCode, i === 0 ? "hebrew" : "greek"];
       }
     }
-  })(,
+  })(),
 );
 
 function* iterateBooksParts(books: BookInfo[]): Generator<[Part, BookInfo[]]> {
