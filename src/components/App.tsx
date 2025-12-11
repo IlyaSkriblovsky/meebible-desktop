@@ -1,44 +1,27 @@
-import {
-  alpha,
-  Box,
-  createTheme,
-  CssBaseline,
-  ThemeProvider,
-  useMediaQuery,
-} from "@mui/material";
+import { alpha, Box, createTheme, CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { blue, cyan, deepOrange, indigo, purple } from "@mui/material/colors";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import * as React from "react";
-import { useContext } from "react";
 
 import "../App.css";
 import { useMount } from "react-use";
 
 import { BooksListProvider } from "../contexts/BooksContext.tsx";
-import {
-  ChapterTextContext,
-  ChapterTextProvider,
-} from "../contexts/ChapterTextContext.tsx";
+import { ChapterTextProvider } from "../contexts/ChapterTextContext.tsx";
 import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
 import { useDisableContextMenu } from "../utils.ts";
+import { ChapterContent } from "./ChapterContent.tsx";
 import { StartupSender } from "./StartupSender.tsx";
 import { Topbar } from "./Topbar.tsx";
 
 function Home() {
-  const chapterText = useContext(ChapterTextContext);
-
   return (
     <>
       <Topbar />
-      {chapterText.loaded ? (
-        <Box
-          className="bible-text"
-          dangerouslySetInnerHTML={{ __html: chapterText.text }}
-          sx={{ px: 3, pb: 3, pt: 1 }}
-        />
-      ) : null}
+
+      <ChapterContent />
     </>
   );
 }
@@ -123,6 +106,11 @@ export function App() {
       }),
     [prefersDarkMode],
   );
+
+  React.useEffect(() => {
+    const scheme = prefersDarkMode ? "dark" : "light";
+    document.documentElement.setAttribute("theme", scheme);
+  }, [prefersDarkMode]);
 
   return (
     <TranslationsListProvider>

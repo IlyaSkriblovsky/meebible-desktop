@@ -16,33 +16,51 @@ html, body {
 
     .verse {
         display: inline;
-        cursor: pointer
+        cursor: pointer;
+        padding: 0.3ex 0;
+    }
+
+    .verse.highlighted {
+        background: #fff59d;
+        html[theme="dark"] & {
+            background: #806500;
+        }
+
+        .z {
+            background: #fff59d;
+            html[theme="dark"] & {
+                background: #806500;
+            }
+        }
+
+        .verse-label {
+            color: #c38700;
+            html[theme="dark"] & {
+                color: #ffe08a;
+            }
+        }
     }
 
     .verse.selected {
-        background: #fea;
-    }
+        background: #cde7ff;
+        html[theme="dark"] & {
+            background: #2f4d73;
+        }
 
-    .verse.selected .z, .verse.selected .z:first-line {
-        background: #fea;
-    }
+        .z {
+            background: #cde7ff;
+            html[theme="dark"] & {
+                background: #2f4d73;
+            }
+        }
 
-    .verse.selected .verse-label {
-        color: #c00;
+        .verse-label {
+            color: #0b63c5;
+            html[theme="dark"] & {
+                color: #a8cfff;
+            }
+        }
     }
-
-    body[inverted=true] .verse.selected {
-        background: #444;
-    }
-
-    body[inverted=true] .verse.selected .z, body[inverted=true] .verse.selected .z:first-line {
-        background: #444;
-    }
-
-    body[inverted=true] .verse.selected .verse-label {
-        color: #c44;
-    }
-
 
     .heading {
         font-size: 120%;
@@ -61,14 +79,11 @@ html, body {
         padding: 0 .2em 0 .2em;
 
         text-indent: 0;
-    }
 
-    .verse-label {
         color: #888;
-    }
-
-    body[inverted=true] .verse-label {
-        color: #666;
+        html[theme="dark"] & {
+            color: #666;
+        }
     }
 
     .par {
@@ -112,18 +127,16 @@ html, body {
 
     .match {
         background: #8f8;
+        html[theme="dark"] & {
+            background: #060;
+        }
     }
 
     .match.current {
         background: #f88;
-    }
-
-    body[inverted=true] .match {
-        background: #060;
-    }
-
-    body[inverted=true] .match.current {
-        background: #600;
+        html[theme="dark"] & {
+            background: #600;
+        }
     }
 
     body.hide-matches .match {
