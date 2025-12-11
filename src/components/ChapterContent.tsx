@@ -12,7 +12,6 @@ export function ChapterContent() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
-  // FIXME: why not both sets?
   const [selectedVerses, setSelectedVerses] = useState<string[]>([]);
   const [highlightedVerses, setHighlightedVerses] = useState<Set<string>>(new Set());
 
@@ -55,7 +54,6 @@ export function ChapterContent() {
 
     const handleVerseClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      console.log("target", target);
       const verseElement = target.closest(".verse");
       if (!verseElement || !container.contains(verseElement)) return;
 
@@ -181,8 +179,16 @@ export function ChapterContent() {
     const verses = selectedVerseElements();
     if (verses.length === 0) return;
 
-    // FIXME: add space after verse numbers
-    const text = verses.map((verse) => verse.innerText.trim()).join("\n");
+    const text = verses
+      .map((verse) => {
+        const verseText = verse.innerText.trim();
+        const label = verse.querySelector(".verse-label")?.textContent?.trim() ?? "";
+        if (!label) return verseText;
+        return verseText.startsWith(label)
+          ? `${label} ${verseText.slice(label.length).trimStart()}`
+          : `${label} ${verseText}`;
+      })
+      .join("\n");
 
     try {
       await navigator.clipboard.writeText(text);
@@ -230,7 +236,6 @@ export function ChapterContent() {
         onHighlight={highlightSelectedVerses}
         position={toolbarPosition}
         ref={toolbarRef}
-        selectedCount={selectedVerses.length}
       />
     </Box>
   );

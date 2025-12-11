@@ -6,7 +6,6 @@ export type ToolbarPosition = { left: number; top: number; placement: "above" | 
 
 interface SelectedVersesToolbarProps {
   position: ToolbarPosition;
-  selectedCount: number;
 
   onCopy(): void;
   onHighlight(): void;
@@ -14,10 +13,10 @@ interface SelectedVersesToolbarProps {
 }
 
 export const SelectedVersesToolbar = forwardRef(function SelectedVersesToolbar(
-  { position, selectedCount, onCopy, onHighlight, onBookmark }: SelectedVersesToolbarProps,
+  { position, onCopy, onHighlight, onBookmark }: SelectedVersesToolbarProps,
   ref: ForwardedRef<HTMLDivElement>,
 ) {
-  if (!position || selectedCount === 0) {
+  if (!position) {
     return null;
   }
 
