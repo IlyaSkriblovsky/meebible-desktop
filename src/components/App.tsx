@@ -18,11 +18,13 @@ import { Topbar } from "./Topbar.tsx";
 
 function Home() {
   return (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
       <Topbar />
 
-      <ChapterContent />
-    </>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+        <ChapterContent />
+      </Box>
+    </Box>
   );
 }
 
@@ -34,7 +36,6 @@ function Shell() {
         height: "100vh",
         overflow: "hidden",
         bgcolor: "background.default",
-        overflowY: "auto",
       }}
     >
       <Home />

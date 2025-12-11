@@ -6,7 +6,7 @@ import { TranslationSelector } from "./TranslationSelector.tsx";
 
 export function Topbar() {
   return (
-    <AppBar color="default" elevation={0} enableColorOnDark position="sticky">
+    <AppBar color="default" elevation={0} enableColorOnDark position="static">
       <Toolbar>
         <BookSelector />
         <div style={{ width: "1em" }} />
