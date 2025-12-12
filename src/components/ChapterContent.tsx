@@ -98,6 +98,7 @@ export function ChapterContent() {
       return;
     }
 
+    const scrollTop = container.parentElement?.scrollTop ?? 0;
     const containerRect = container.getBoundingClientRect();
     const verseRects = selectedVerseElements()
       .map((verseElement) => verseElement.getBoundingClientRect())
@@ -115,8 +116,7 @@ export function ChapterContent() {
 
     const centerX = (minLeft + maxRight) / 2 - containerRect.left;
     const gap = 12;
-    // FIXME: what if container is scrolled down?
-    const aboveTop = minTop - containerRect.top - gap - toolbarHeight;
+    const aboveTop = minTop - containerRect.top - scrollTop - gap - toolbarHeight;
     const placement = aboveTop >= 0 ? "above" : "below";
     const top = placement === "above" ? minTop - containerRect.top - gap : maxBottom - containerRect.top + gap;
 
