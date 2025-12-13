@@ -199,12 +199,15 @@ export function ChapterContent() {
     }
   };
 
+  const allSelectedAreHighlighted = useMemo(() => {
+    return selectedVerses.every((verseId) => highlightedVerses.has(verseId));
+  }, [highlightedVerses, selectedVerses]);
+
   const highlightSelectedVerses = () => {
     setHighlightedVerses((current) => {
       const next = new Set(current);
-      const allHighlighted = selectedVerses.every((verseId) => next.has(verseId));
 
-      if (allHighlighted) {
+      if (allSelectedAreHighlighted) {
         selectedVerses.forEach((verseId) => next.delete(verseId));
       } else {
         selectedVerses.forEach((verseId) => next.add(verseId));
@@ -231,6 +234,7 @@ export function ChapterContent() {
     <Box ref={containerRef} sx={{ px: 3, pb: 3, pt: 1, position: "relative" }}>
       <Box className="bible-text" dangerouslySetInnerHTML={html} />
       <SelectedVersesToolbar
+        highlightTitle={allSelectedAreHighlighted ? "Unighlight" : "Highlight"}
         onBookmark={addBookmark}
         onCopy={copySelectedVerses}
         onHighlight={highlightSelectedVerses}

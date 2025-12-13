@@ -6,6 +6,7 @@ export type ToolbarPosition = { left: number; top: number; placement: "above" | 
 
 interface SelectedVersesToolbarProps {
   position: ToolbarPosition;
+  highlightTitle: string;
 
   onCopy(): void;
   onHighlight(): void;
@@ -13,9 +14,11 @@ interface SelectedVersesToolbarProps {
 }
 
 export const SelectedVersesToolbar = forwardRef(function SelectedVersesToolbar(
-  { position, onCopy, onHighlight, onBookmark }: SelectedVersesToolbarProps,
+  props: SelectedVersesToolbarProps,
   ref: ForwardedRef<HTMLDivElement>,
 ) {
+  const { position, highlightTitle, onCopy, onHighlight, onBookmark } = props;
+
   if (!position) {
     return null;
   }
@@ -45,7 +48,7 @@ export const SelectedVersesToolbar = forwardRef(function SelectedVersesToolbar(
           startIcon={<HighlightAlt fontSize="small" />}
           variant="outlined"
         >
-          Highlight
+          {highlightTitle}
         </Button>
         <Button
           color="primary"
