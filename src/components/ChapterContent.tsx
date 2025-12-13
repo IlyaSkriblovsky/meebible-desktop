@@ -5,6 +5,40 @@ import { ChapterTextContext } from "../contexts/ChapterTextContext.tsx";
 import { LocationContext } from "../contexts/LocationContext.tsx";
 import { SelectedVersesToolbar, ToolbarPosition } from "./SelectedVersesToolbar.tsx";
 
+function useVersesHighlightLogic(selectedVerses: string[]) {
+  const [highlightedVerses, setHighlightedVerses] = useState<Set<string>>(new Set());
+
+  const clearHighlight = useCallback(() => {
+    setHighlightedVerses(new Set());
+  }, []);
+
+  const allSelectedAreHighlighted = useMemo(
+    () => selectedVerses.length > 0 && selectedVerses.every((verseId) => highlightedVerses.has(verseId)),
+    [highlightedVerses, selectedVerses],
+  );
+
+  const highlightSelectedVerses = useCallback(() => {
+    setHighlightedVerses((current) => {
+      const next = new Set(current);
+
+      if (allSelectedAreHighlighted) {
+        selectedVerses.forEach((verseId) => next.delete(verseId));
+      } else {
+        selectedVerses.forEach((verseId) => next.add(verseId));
+      }
+
+      return next;
+    });
+  }, [setHighlightedVerses, allSelectedAreHighlighted, selectedVerses]);
+
+  return {
+    highlightedVerses,
+    clearHighlight,
+    allSelectedAreHighlighted,
+    highlightSelectedVerses,
+  };
+}
+
 export function ChapterContent() {
   const { location } = useContext(LocationContext);
   const chapterText = useContext(ChapterTextContext);
@@ -13,7 +47,9 @@ export function ChapterContent() {
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
   const [selectedVerses, setSelectedVerses] = useState<string[]>([]);
-  const [highlightedVerses, setHighlightedVerses] = useState<Set<string>>(new Set());
+
+  const { highlightedVerses, clearHighlight, allSelectedAreHighlighted, highlightSelectedVerses } =
+    useVersesHighlightLogic(selectedVerses);
 
   const [toolbarPosition, setToolbarPosition] = useState<ToolbarPosition>(null);
   const [toolbarHeight, setToolbarHeight] = useState(0);
@@ -37,14 +73,11 @@ export function ChapterContent() {
       .filter((verse): verse is HTMLElement => verse != null);
   }, [findVerseElement, selectedVerses]);
 
-  const clearSelection = useCallback(() => {
-    setSelectedVerses([]);
-    setToolbarPosition(null);
-  }, []);
+  const clearSelection = useCallback(() => setSelectedVerses([]), []);
 
   useEffect(() => {
     clearSelection();
-    setHighlightedVerses(new Set());
+    clearHighlight();
   }, [clearSelection, location.bookCode, location.chapterNo]);
 
   // Verse click handler
@@ -175,7 +208,7 @@ export function ChapterContent() {
 
   // Toolbar actions
 
-  const copySelectedVerses = async () => {
+  const onCopy = useCallback(async () => {
     const verses = selectedVerseElements();
     if (verses.length === 0) return;
 
@@ -197,34 +230,20 @@ export function ChapterContent() {
     } finally {
       clearSelection();
     }
-  };
+  }, [clearSelection, selectedVerseElements]);
 
-  const allSelectedAreHighlighted = useMemo(() => {
-    return selectedVerses.every((verseId) => highlightedVerses.has(verseId));
-  }, [highlightedVerses, selectedVerses]);
-
-  const highlightSelectedVerses = () => {
-    setHighlightedVerses((current) => {
-      const next = new Set(current);
-
-      if (allSelectedAreHighlighted) {
-        selectedVerses.forEach((verseId) => next.delete(verseId));
-      } else {
-        selectedVerses.forEach((verseId) => next.add(verseId));
-      }
-
-      return next;
-    });
-    clearSelection();
-  };
-
-  const addBookmark = () => {
+  const onBookmark = useCallback(() => {
     if (selectedVerses.length === 0) return;
 
     // TODO: implement bookmarks
 
     clearSelection();
-  };
+  }, [selectedVerses, clearSelection]);
+
+  const onHighlight = useCallback(() => {
+    highlightSelectedVerses();
+    clearSelection();
+  }, [highlightSelectedVerses, clearSelection]);
 
   const html = useMemo(() => ({ __html: chapterText.loaded ? chapterText.text : "" }), [chapterText]);
 
@@ -234,10 +253,10 @@ export function ChapterContent() {
     <Box ref={containerRef} sx={{ px: 3, pb: 3, pt: 1, position: "relative" }}>
       <Box className="bible-text" dangerouslySetInnerHTML={html} />
       <SelectedVersesToolbar
-        highlightTitle={allSelectedAreHighlighted ? "Unighlight" : "Highlight"}
-        onBookmark={addBookmark}
-        onCopy={copySelectedVerses}
-        onHighlight={highlightSelectedVerses}
+        highlightTitle={allSelectedAreHighlighted ? "Unhighlight" : "Highlight"}
+        onBookmark={onBookmark}
+        onCopy={onCopy}
+        onHighlight={onHighlight}
         position={toolbarPosition}
         ref={toolbarRef}
       />
