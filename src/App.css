@@ -20,7 +20,7 @@ html, body {
         padding: 0.3ex 0;
     }
 
-    .verse.highlighted {
+    .verse.bookmarked {
         background: #fff59d;
         html[theme="dark"] & {
             background: #806500;

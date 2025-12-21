@@ -1,62 +1,55 @@
 import { Box } from "@mui/material";
-import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { ChapterTextContext } from "../contexts/ChapterTextContext.tsx";
-import { LocationContext } from "../contexts/LocationContext.tsx";
+import { useBookmarksContext } from "../contexts/BookmarksContext.tsx";
+import { useChapterTextContext } from "../contexts/ChapterTextContext.tsx";
+import { useLocationContext } from "../contexts/LocationContext.tsx";
 import { SelectedVersesToolbar, ToolbarPosition } from "./SelectedVersesToolbar.tsx";
 
-function useVersesHighlightLogic(selectedVerses: string[]) {
-  const [highlightedVerses, setHighlightedVerses] = useState<Set<string>>(new Set());
+function useBookmarksLogic(selectedVerses: number[]) {
+  const { bookmarkedVerses, addVersesToBookmarks, removeVersesFromBookmarks } = useBookmarksContext();
 
-  const clearHighlight = useCallback(() => {
-    setHighlightedVerses(new Set());
-  }, []);
-
-  const allSelectedAreHighlighted = useMemo(
-    () => selectedVerses.length > 0 && selectedVerses.every((verseId) => highlightedVerses.has(verseId)),
-    [highlightedVerses, selectedVerses],
+  const allSelectedAreBookmarked = useMemo(
+    () => selectedVerses.length > 0 && selectedVerses.every((verseId) => bookmarkedVerses.includes(verseId)),
+    [bookmarkedVerses, selectedVerses],
   );
 
-  const highlightSelectedVerses = useCallback(() => {
-    setHighlightedVerses((current) => {
-      const next = new Set(current);
-
-      if (allSelectedAreHighlighted) {
-        selectedVerses.forEach((verseId) => next.delete(verseId));
-      } else {
-        selectedVerses.forEach((verseId) => next.add(verseId));
-      }
-
-      return next;
-    });
-  }, [setHighlightedVerses, allSelectedAreHighlighted, selectedVerses]);
+  const toggleBookmarkForSelectedVerses = useCallback(() => {
+    if (allSelectedAreBookmarked) {
+      removeVersesFromBookmarks(selectedVerses).then();
+    } else {
+      addVersesToBookmarks(selectedVerses).then();
+    }
+  }, [addVersesToBookmarks, allSelectedAreBookmarked, selectedVerses]);
 
   return {
-    highlightedVerses,
-    clearHighlight,
-    allSelectedAreHighlighted,
-    highlightSelectedVerses,
+    bookmarkedVerses,
+    allSelectedAreBookmarked,
+    toggleBookmarkForSelectedVerses,
   };
 }
 
 export function ChapterContent() {
-  const { location } = useContext(LocationContext);
-  const chapterText = useContext(ChapterTextContext);
+  const { location } = useLocationContext();
+  const chapterText = useChapterTextContext();
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
-  const [selectedVerses, setSelectedVerses] = useState<string[]>([]);
+  const [selectedVerses, setSelectedVerses] = useState<number[]>([]);
 
-  const { highlightedVerses, clearHighlight, allSelectedAreHighlighted, highlightSelectedVerses } =
-    useVersesHighlightLogic(selectedVerses);
+  const { bookmarkedVerses, allSelectedAreBookmarked, toggleBookmarkForSelectedVerses } =
+    useBookmarksLogic(selectedVerses);
 
   const [toolbarPosition, setToolbarPosition] = useState<ToolbarPosition>(null);
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
-  const getVerseId = useCallback((verseElement: Element | null) => {
+  const getVerseId = useCallback((verseElement: Element | null): number | null => {
     if (!verseElement) return null;
-    return verseElement.getAttribute("verse") ?? verseElement.id ?? null;
+    const str = verseElement.getAttribute("verse") ?? verseElement.id ?? null;
+    if (str === null) return null;
+    const num = Number(str);
+    return Number.isNaN(num) ? null : num;
   }, []);
 
   const findVerseElement = useCallback((container: HTMLElement, verseId: string) => {
@@ -66,23 +59,20 @@ export function ChapterContent() {
   }, []);
 
   const selectedVerseElements = useCallback(() => {
-    const container = containerRef.current;
     if (!container) return [];
     return selectedVerses
-      .map((verseId) => findVerseElement(container, verseId))
+      .map((verseId) => findVerseElement(container, verseId.toString()))
       .filter((verse): verse is HTMLElement => verse != null);
-  }, [findVerseElement, selectedVerses]);
+  }, [container, findVerseElement, selectedVerses]);
 
   const clearSelection = useCallback(() => setSelectedVerses([]), []);
 
   useEffect(() => {
     clearSelection();
-    clearHighlight();
   }, [clearSelection, location.bookCode, location.chapterNo]);
 
   // Verse click handler
   useEffect(() => {
-    const container = containerRef.current;
     if (!container) return;
 
     const handleVerseClick = (event: MouseEvent) => {
@@ -96,20 +86,18 @@ export function ChapterContent() {
       setSelectedVerses((prevSelected) => {
         const alreadySelected = prevSelected.includes(verseId);
         const updated = alreadySelected ? prevSelected.filter((id) => id !== verseId) : [...prevSelected, verseId];
-        return updated.sort((a, b) => {
-          const diff = Number(a) - Number(b);
-          return Number.isNaN(diff) ? a.localeCompare(b) : diff;
-        });
+        return updated.sort();
       });
     };
 
     container.addEventListener("click", handleVerseClick);
     return () => container.removeEventListener("click", handleVerseClick);
-  }, [getVerseId, chapterText.loaded]);
+  }, [container, getVerseId, chapterText.loaded]);
+
+  const html = useMemo(() => ({ __html: chapterText.loaded ? chapterText.text : "" }), [chapterText]);
 
   // Set css classes on verses
   useEffect(() => {
-    const container = containerRef.current;
     if (!container) return;
 
     const verseElements = Array.from(container.querySelectorAll<HTMLElement>(".verse"));
@@ -117,15 +105,14 @@ export function ChapterContent() {
     verseElements.forEach((verseElement) => {
       const verseId = getVerseId(verseElement);
       const isSelected = verseId != null && selectedVerses.includes(verseId);
-      const isHighlighted = verseId != null && highlightedVerses.has(verseId);
+      const isBookmarked = verseId != null && bookmarkedVerses.includes(verseId);
 
       verseElement.classList.toggle("selected", isSelected);
-      verseElement.classList.toggle("highlighted", isHighlighted);
+      verseElement.classList.toggle("bookmarked", isBookmarked);
     });
-  }, [selectedVerses, highlightedVerses, getVerseId]);
+  }, [container, selectedVerses, bookmarkedVerses, getVerseId, html]);
 
   const updateToolbarPosition = useCallback(() => {
-    const container = containerRef.current;
     if (!container || selectedVerses.length === 0) {
       setToolbarPosition(null);
       return;
@@ -154,7 +141,7 @@ export function ChapterContent() {
     const top = placement === "above" ? minTop - containerRect.top - gap : maxBottom - containerRect.top + gap;
 
     setToolbarPosition({ left: centerX, top, placement });
-  }, [selectedVerseElements, selectedVerses, toolbarHeight]);
+  }, [container, selectedVerseElements, selectedVerses, toolbarHeight]);
 
   useEffect(() => updateToolbarPosition(), [updateToolbarPosition]);
 
@@ -180,7 +167,7 @@ export function ChapterContent() {
 
       if (toolbarRef.current?.contains(target)) return;
 
-      if (containerRef.current?.contains(target)) {
+      if (container?.contains(target)) {
         const verseElement = (target as HTMLElement).closest(".par");
         if (!verseElement && selectedVerses.length > 0) {
           clearSelection();
@@ -204,7 +191,7 @@ export function ChapterContent() {
       document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [clearSelection, selectedVerses.length]);
+  }, [container, clearSelection, selectedVerses.length]);
 
   // Toolbar actions
 
@@ -233,30 +220,19 @@ export function ChapterContent() {
   }, [clearSelection, selectedVerseElements]);
 
   const onBookmark = useCallback(() => {
-    if (selectedVerses.length === 0) return;
-
-    // TODO: implement bookmarks
-
+    toggleBookmarkForSelectedVerses();
     clearSelection();
-  }, [selectedVerses, clearSelection]);
-
-  const onHighlight = useCallback(() => {
-    highlightSelectedVerses();
-    clearSelection();
-  }, [highlightSelectedVerses, clearSelection]);
-
-  const html = useMemo(() => ({ __html: chapterText.loaded ? chapterText.text : "" }), [chapterText]);
+  }, [toggleBookmarkForSelectedVerses, clearSelection]);
 
   if (!chapterText.loaded) return null;
 
   return (
-    <Box ref={containerRef} sx={{ px: 3, pb: 3, pt: 1, position: "relative" }}>
+    <Box ref={setContainer} sx={{ px: 3, pb: 3, pt: 1, position: "relative" }}>
       <Box className="bible-text" dangerouslySetInnerHTML={html} />
       <SelectedVersesToolbar
-        highlightTitle={allSelectedAreHighlighted ? "Unhighlight" : "Highlight"}
+        bookmarkAction={allSelectedAreBookmarked ? "remove" : "add"}
         onBookmark={onBookmark}
         onCopy={onCopy}
-        onHighlight={onHighlight}
         position={toolbarPosition}
         ref={toolbarRef}
       />

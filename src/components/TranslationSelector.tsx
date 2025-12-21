@@ -15,15 +15,11 @@ import {
   ListSubheader,
   Menu,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useToggle } from "react-use";
 
-import { SelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
-import {
-  Language,
-  TranslationLanguage,
-  TranslationsListContext,
-} from "../contexts/TranslationsListContext.tsx";
+import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
+import { Language, TranslationLanguage, useTranslationsListContext } from "../contexts/TranslationsListContext.tsx";
 import { lowerCaseRemoveDiacritics } from "../utils.ts";
 
 interface TranslationsListProps {
@@ -36,15 +32,8 @@ function TranslationsList({ language, onSelect }: TranslationsListProps) {
   return (
     <List component="div" disablePadding>
       {language.translations.map((transLang) => (
-        <ListItemButton
-          key={transLang.translation.code}
-          onClick={() => onSelect(transLang)}
-          sx={{ pl: 4 }}
-        >
-          <ListItemText
-            primary={transLang.name}
-            secondary={transLang.translation.copyright}
-          />
+        <ListItemButton key={transLang.translation.code} onClick={() => onSelect(transLang)} sx={{ pl: 4 }}>
+          <ListItemText primary={transLang.name} secondary={transLang.translation.copyright} />
         </ListItemButton>
       ))}
     </List>
@@ -67,10 +56,8 @@ function LanguageAccordion({ language, onSelect }: TranslationsListProps) {
 }
 
 export function TranslationSelector() {
-  const translationsContext = useContext(TranslationsListContext);
-  const { language, transLang, switchTranslation } = useContext(
-    SelectedTranslationContext,
-  );
+  const translationsContext = useTranslationsListContext();
+  const { language, transLang, switchTranslation } = useSelectedTranslationContext();
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
@@ -86,9 +73,7 @@ export function TranslationSelector() {
 
   const languages = useMemo(() => {
     const searchWithoutDiacritics = lowerCaseRemoveDiacritics(search.trim());
-    const langs = translationsContext.loaded
-      ? translationsContext.languages
-      : [];
+    const langs = translationsContext.loaded ? translationsContext.languages : [];
     if (!searchWithoutDiacritics) {
       return langs;
     }
@@ -99,10 +84,7 @@ export function TranslationSelector() {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, ""),
-        ) ||
-        lowerCaseRemoveDiacritics(lang.selfname).includes(
-          lowerCaseRemoveDiacritics(search),
-        ),
+        ) || lowerCaseRemoveDiacritics(lang.selfname).includes(lowerCaseRemoveDiacritics(search)),
     );
   }, [search, translationsContext]);
 
@@ -113,25 +95,15 @@ export function TranslationSelector() {
 
   return (
     <>
-      <Button
-        endIcon={<KeyboardArrowDownIcon />}
-        onClick={handleClick}
-        variant="outlined"
-      >
+      <Button endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} variant="outlined">
         {transLang?.name ?? "Loading..."}
       </Button>
 
       <Menu anchorEl={anchorEl} onClose={handleClose} open={open}>
         {language
           ? [
-              <ListSubheader key="cur-lang-name">
-                {language.selfname}
-              </ListSubheader>,
-              <TranslationsList
-                key="cur-lang-list"
-                language={language}
-                onSelect={onSelectTranslation}
-              />,
+              <ListSubheader key="cur-lang-name">{language.selfname}</ListSubheader>,
+              <TranslationsList key="cur-lang-list" language={language} onSelect={onSelectTranslation} />,
               <Divider key="divider" />,
             ]
           : null}
@@ -153,11 +125,7 @@ export function TranslationSelector() {
           .filter((lang) => lang.translations.length > 0)
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((lang) => (
-            <LanguageAccordion
-              key={lang.code}
-              language={lang}
-              onSelect={onSelectTranslation}
-            />
+            <LanguageAccordion key={lang.code} language={lang} onSelect={onSelectTranslation} />
           ))}
       </Menu>
     </>

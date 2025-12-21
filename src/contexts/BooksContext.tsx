@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { useAsync } from "react-use";
 
 import { fetchAndParseXML, OnlyChildren } from "../utils.ts";
-import { SelectedTranslationContext } from "./SelectedTranslationContext.tsx";
+import { useSelectedTranslationContext } from "./SelectedTranslationContext.tsx";
 
 export interface BookInfo {
   bookNumber: number;
@@ -24,9 +24,15 @@ type BooksListContextType =
       loaded: true;
     } & BooksInfo);
 
-export const BooksListContext = createContext<BooksListContextType>({
-  loaded: false,
-});
+const BooksListContext = createContext<BooksListContextType | null>(null);
+
+export function useBooksListContext(): BooksListContextType {
+  const context = useContext(BooksListContext);
+  if (!context) {
+    throw new Error("useBooksListContext must be used within a BooksListProvider");
+  }
+  return context;
+}
 
 function parseBooksInfo(xml: Document): BooksInfo {
   const books: BookInfo[] = [];
@@ -43,10 +49,7 @@ function parseBooksInfo(xml: Document): BooksInfo {
       versesInChapter: Array.from(bookElem.querySelectorAll("chapter")).reduce(
         (acc, chapterElem) => {
           const chapterNo = parseInt(chapterElem.getAttribute("no") ?? "0", 10);
-          const versesCount = parseInt(
-            chapterElem.getAttribute("verses") ?? "0",
-            10,
-          );
+          const versesCount = parseInt(chapterElem.getAttribute("verses") ?? "0", 10);
           acc[chapterNo] = versesCount;
           return acc;
         },
@@ -63,19 +66,15 @@ function parseBooksInfo(xml: Document): BooksInfo {
 }
 
 export function BooksListProvider({ children }: OnlyChildren) {
-  const { transCode, langCode } = useContext(SelectedTranslationContext);
+  const { transCode, langCode } = useSelectedTranslationContext();
 
   const { value } = useAsync(async () => {
-    const content = await fetchAndParseXML(
-      `/translation?trans=${transCode}&lang=${langCode}`,
-    );
+    const content = await fetchAndParseXML(`/translation?trans=${transCode}&lang=${langCode}`);
     return parseBooksInfo(content);
   }, [transCode, langCode]);
 
   return (
-    <BooksListContext.Provider
-      value={value ? { loaded: true, ...value } : { loaded: false }}
-    >
+    <BooksListContext.Provider value={value ? { loaded: true, ...value } : { loaded: false }}>
       {children}
     </BooksListContext.Provider>
   );

@@ -6,8 +6,10 @@ import * as React from "react";
 import "../App.css";
 import { useMount } from "react-use";
 
+import { BookmarksProvider } from "../contexts/BookmarksContext.tsx";
 import { BooksListProvider } from "../contexts/BooksContext.tsx";
 import { ChapterTextProvider } from "../contexts/ChapterTextContext.tsx";
+import { DatabaseProvider } from "../contexts/DatabaseContext.tsx";
 import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
@@ -44,14 +46,6 @@ function Shell() {
 }
 
 declare module "@mui/material/styles" {
-  interface Palette {
-    chapter: Palette["primary"];
-    book1: Palette["primary"];
-    book2: Palette["primary"];
-    book3: Palette["primary"];
-    book4: Palette["primary"];
-  }
-
   interface PaletteOptions {
     chapter?: PaletteOptions["primary"];
     book1?: PaletteOptions["primary"];
@@ -114,20 +108,24 @@ export function App() {
   }, [prefersDarkMode]);
 
   return (
-    <TranslationsListProvider>
-      <SelectedTranslationProvider>
-        <StartupSender />
-        <BooksListProvider>
-          <LocationProvider>
-            <ChapterTextProvider>
-              <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <Shell />
-              </ThemeProvider>
-            </ChapterTextProvider>
-          </LocationProvider>
-        </BooksListProvider>
-      </SelectedTranslationProvider>
-    </TranslationsListProvider>
+    <DatabaseProvider>
+      <TranslationsListProvider>
+        <SelectedTranslationProvider>
+          <StartupSender />
+          <BooksListProvider>
+            <LocationProvider>
+              <BookmarksProvider>
+                <ChapterTextProvider>
+                  <ThemeProvider theme={theme}>
+                    <CssBaseline />
+                    <Shell />
+                  </ThemeProvider>
+                </ChapterTextProvider>
+              </BookmarksProvider>
+            </LocationProvider>
+          </BooksListProvider>
+        </SelectedTranslationProvider>
+      </TranslationsListProvider>
+    </DatabaseProvider>
   );
 }

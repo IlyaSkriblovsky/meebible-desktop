@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect } from "react";
 import { useLocalStorage } from "react-use";
 
 import { OnlyChildren } from "../utils.ts";
-import { BooksListContext } from "./BooksContext.tsx";
+import { useBooksListContext } from "./BooksContext.tsx";
 
 interface Location {
   bookCode: string;
@@ -28,27 +28,23 @@ interface LocationContextType {
   goToChapter(chapterNo: number): void;
 }
 
-export const LocationContext = createContext<LocationContextType>({
-  location: defaultLocation,
-  hasPrevChapter: false,
-  hasNextChapter: false,
+const LocationContext = createContext<LocationContextType | null>(null);
 
-  goNextChapter: () => {},
-  goPrevChapter: () => {},
-  goToBook: () => {},
-  goToChapter: () => {},
-});
+export function useLocationContext(): LocationContextType {
+  const context = useContext(LocationContext);
+  if (!context) {
+    throw new Error("useLocationContext must be used within a LocationProvider");
+  }
+  return context;
+}
 
 export function LocationProvider({ children }: OnlyChildren) {
-  const [locationOrEmpty, setLocation] = useLocalStorage(
-    "location",
-    defaultLocation,
-  );
+  const [locationOrEmpty, setLocation] = useLocalStorage("location", defaultLocation);
   const location = locationOrEmpty ?? defaultLocation;
 
   const { chapterNo, bookCode } = location;
 
-  const booksInfo = useContext(BooksListContext);
+  const booksInfo = useBooksListContext();
 
   useEffect(() => {
     if (!booksInfo.loaded) return;
@@ -61,17 +57,13 @@ export function LocationProvider({ children }: OnlyChildren) {
     }
   }, [booksInfo]);
 
-  const curBookInfo = booksInfo.loaded
-    ? booksInfo.bookByCode[bookCode]
-    : undefined;
+  const curBookInfo = booksInfo.loaded ? booksInfo.bookByCode[bookCode] : undefined;
 
-  const hasPrevChapter =
-    chapterNo > 1 || (booksInfo.loaded && (curBookInfo?.bookNumber ?? 0) > 1);
+  const hasPrevChapter = chapterNo > 1 || (booksInfo.loaded && (curBookInfo?.bookNumber ?? 0) > 1);
 
   const hasNextChapter =
     booksInfo.loaded &&
-    (chapterNo < (curBookInfo?.chaptersCount ?? 0) ||
-      (curBookInfo?.bookNumber ?? 0) < booksInfo.books.length);
+    (chapterNo < (curBookInfo?.chaptersCount ?? 0) || (curBookInfo?.bookNumber ?? 0) < booksInfo.books.length);
 
   const goPrevChapter = () => {
     if (!booksInfo.loaded) return;

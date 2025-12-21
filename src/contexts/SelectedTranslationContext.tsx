@@ -1,14 +1,8 @@
 import { createContext, useContext } from "react";
 import { useLocalStorage } from "react-use";
-import { noop } from "ts-essentials";
 
 import { OnlyChildren } from "../utils.ts";
-import {
-  Language,
-  Translation,
-  TranslationLanguage,
-  TranslationsListContext,
-} from "./TranslationsListContext.tsx";
+import { Language, Translation, TranslationLanguage, useTranslationsListContext } from "./TranslationsListContext.tsx";
 
 interface SelectedTranslation {
   transCode: string;
@@ -21,45 +15,34 @@ interface SelectedTranslation {
   switchTranslation(transCode: string, langCode: string): void;
 }
 
-const defaultValue: SelectedTranslation = {
-  transCode: "nwt",
-  langCode: "e",
+const SelectedTranslationContext = createContext<SelectedTranslation | null>(null);
 
-  language: null,
-  translation: null,
-  transLang: null,
+export function useSelectedTranslationContext(): SelectedTranslation {
+  const context = useContext(SelectedTranslationContext);
+  if (!context) {
+    throw new Error("useSelectedTranslationContext must be used within a SelectedTranslationProvider");
+  }
+  return context;
+}
 
-  switchTranslation: noop,
-};
-
-export const SelectedTranslationContext =
-  createContext<SelectedTranslation>(defaultValue);
+const DEFAULT_TRANSLATION = "nwt";
+const DEFAULT_LANGUAGE = "e";
 
 export function SelectedTranslationProvider({ children }: OnlyChildren) {
-  const [transCodeOrEmpty, setTransCode] = useLocalStorage(
-    "transCode",
-    defaultValue.transCode,
-  );
-  const [langCodeOrEmpty, setLangCode] = useLocalStorage(
-    "langCode",
-    defaultValue.langCode,
-  );
+  const [transCodeOrEmpty, setTransCode] = useLocalStorage("transCode", DEFAULT_TRANSLATION);
+  const [langCodeOrEmpty, setLangCode] = useLocalStorage("langCode", DEFAULT_LANGUAGE);
 
-  const transCode = transCodeOrEmpty ?? defaultValue.transCode;
-  const langCode = langCodeOrEmpty ?? defaultValue.langCode;
+  const transCode = transCodeOrEmpty ?? DEFAULT_TRANSLATION;
+  const langCode = langCodeOrEmpty ?? DEFAULT_LANGUAGE;
 
-  const translationsContext = useContext(TranslationsListContext);
+  const translationsContext = useTranslationsListContext();
   const translation = translationsContext.loaded
-    ? (translationsContext.translations.find((t) => t.code === transCode) ??
-      null)
+    ? (translationsContext.translations.find((t) => t.code === transCode) ?? null)
     : null;
   const language = translationsContext.loaded
     ? (translationsContext.languages.find((l) => l.code === langCode) ?? null)
     : null;
-  const transLang =
-    translation?.languages.find(
-      (transLang) => transLang.language.code === langCode,
-    ) ?? null;
+  const transLang = translation?.languages.find((transLang) => transLang.language.code === langCode) ?? null;
 
   const switchTranslation = (newTransCode: string, newLangCode: string) => {
     setTransCode(newTransCode);

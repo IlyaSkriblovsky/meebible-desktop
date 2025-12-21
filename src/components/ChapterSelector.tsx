@@ -1,17 +1,16 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Box, Button, Popover } from "@mui/material";
-import { MouseEvent, useContext, useState } from "react";
+import { MouseEvent, useState } from "react";
 
-import { BooksListContext } from "../contexts/BooksContext.tsx";
-import { LocationContext } from "../contexts/LocationContext.tsx";
+import { useBooksListContext } from "../contexts/BooksContext.tsx";
+import { useLocationContext } from "../contexts/LocationContext.tsx";
 
 export function ChapterSelector() {
-  const { location, goToChapter } = useContext(LocationContext);
-  const booksInfo = useContext(BooksListContext);
+  const { location, goToChapter } = useLocationContext();
+  const booksInfo = useBooksListContext();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) =>
-    setAnchorEl(event.currentTarget);
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
 
@@ -33,9 +32,7 @@ export function ChapterSelector() {
 
   const { bookByCode } = booksInfo;
   const currentBook = bookByCode[location.bookCode];
-  const chapters = currentBook
-    ? Array.from({ length: currentBook.chaptersCount }, (_, i) => i + 1)
-    : [];
+  const chapters = currentBook ? Array.from({ length: currentBook.chaptersCount }, (_, i) => i + 1) : [];
 
   return (
     <>

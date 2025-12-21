@@ -1,13 +1,12 @@
 import { fetch } from "@tauri-apps/plugin-http";
 import { type } from "@tauri-apps/plugin-os";
-import { useContext } from "react";
 import { useAsync, useLocalStorage } from "react-use";
 
-import { SelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
+import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
 
 export function StartupSender() {
   const [installId] = useLocalStorage("installId", crypto.randomUUID());
-  const { transCode, langCode } = useContext(SelectedTranslationContext);
+  const { transCode, langCode } = useSelectedTranslationContext();
 
   useAsync(async () => {
     if (!import.meta.env.PROD) {

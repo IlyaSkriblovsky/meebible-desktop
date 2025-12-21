@@ -1,16 +1,9 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {
-  Box,
-  Button,
-  ButtonOwnProps,
-  Divider,
-  Popover,
-  Typography,
-} from "@mui/material";
-import { MouseEvent, useContext, useState } from "react";
+import { Box, Button, ButtonOwnProps, Divider, Popover, Typography } from "@mui/material";
+import { MouseEvent, useState } from "react";
 
-import { BookInfo, BooksListContext } from "../contexts/BooksContext.tsx";
-import { LocationContext } from "../contexts/LocationContext.tsx";
+import { BookInfo, useBooksListContext } from "../contexts/BooksContext.tsx";
+import { useLocationContext } from "../contexts/LocationContext.tsx";
 
 // prettier-ignore
 const groups: [ButtonOwnProps["color"], string[]][] = [
@@ -34,16 +27,15 @@ const parts = [
     "2th", "1ti", "2ti", "tit", "phm", "heb", "jas", "1pe", "2pe", "1jo", "2jo", "3jo", "jude", "re"],
 ];
 
-const groupByBookCode: Record<string, ButtonOwnProps["color"] | undefined> =
-  Object.fromEntries(
-    (function* () {
-      for (const [groupColor, bookCodes] of groups) {
-        for (const bookCode of bookCodes) {
-          yield [bookCode, groupColor];
-        }
+const groupByBookCode: Record<string, ButtonOwnProps["color"] | undefined> = Object.fromEntries(
+  (function* () {
+    for (const [groupColor, bookCodes] of groups) {
+      for (const bookCode of bookCodes) {
+        yield [bookCode, groupColor];
       }
-    })(),
-  );
+    }
+  })(),
+);
 
 type Part = "hebrew" | "greek" | undefined;
 
@@ -85,12 +77,11 @@ function* iterateBooksParts(books: BookInfo[]): Generator<[Part, BookInfo[]]> {
 }
 
 export function BookSelector() {
-  const { location, goToBook } = useContext(LocationContext);
-  const booksInfo = useContext(BooksListContext);
+  const { location, goToBook } = useLocationContext();
+  const booksInfo = useBooksListContext();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) =>
-    setAnchorEl(event.currentTarget);
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   const handleBookSelect = (bookCode: string) => {
@@ -114,12 +105,7 @@ export function BookSelector() {
 
   return (
     <>
-      <Button
-        aria-describedby={id}
-        endIcon={<KeyboardArrowDownIcon />}
-        onClick={handleClick}
-        variant="outlined"
-      >
+      <Button aria-describedby={id} endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} variant="outlined">
         {currentBookName || "Select a Book"}
       </Button>
       <Popover

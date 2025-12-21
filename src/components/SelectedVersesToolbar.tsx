@@ -1,4 +1,4 @@
-import { BookmarkAdd, ContentCopy, HighlightAlt } from "@mui/icons-material";
+import { BookmarkAdd, BookmarkRemove, ContentCopy } from "@mui/icons-material";
 import { Button, Paper, Stack } from "@mui/material";
 import { ForwardedRef, forwardRef } from "react";
 
@@ -6,10 +6,9 @@ export type ToolbarPosition = { left: number; top: number; placement: "above" | 
 
 interface SelectedVersesToolbarProps {
   position: ToolbarPosition;
-  highlightTitle: string;
+  bookmarkAction: "add" | "remove";
 
   onCopy(): void;
-  onHighlight(): void;
   onBookmark(): void;
 }
 
@@ -17,7 +16,7 @@ export const SelectedVersesToolbar = forwardRef(function SelectedVersesToolbar(
   props: SelectedVersesToolbarProps,
   ref: ForwardedRef<HTMLDivElement>,
 ) {
-  const { position, highlightTitle, onCopy, onHighlight, onBookmark } = props;
+  const { position, bookmarkAction, onCopy, onBookmark } = props;
 
   if (!position) {
     return null;
@@ -43,21 +42,12 @@ export const SelectedVersesToolbar = forwardRef(function SelectedVersesToolbar(
         </Button>
         <Button
           color="warning"
-          onClick={onHighlight}
-          size="small"
-          startIcon={<HighlightAlt fontSize="small" />}
-          variant="outlined"
-        >
-          {highlightTitle}
-        </Button>
-        <Button
-          color="primary"
           onClick={onBookmark}
           size="small"
-          startIcon={<BookmarkAdd fontSize="small" />}
+          startIcon={bookmarkAction === "add" ? <BookmarkAdd fontSize="small" /> : <BookmarkRemove fontSize="small" />}
           variant="outlined"
         >
-          Bookmark
+          {bookmarkAction === "add" ? "Bookmark" : "Unbookmark"}
         </Button>
       </Stack>
     </Paper>

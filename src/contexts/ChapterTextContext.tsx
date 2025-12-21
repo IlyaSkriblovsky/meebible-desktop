@@ -3,22 +3,26 @@ import { createContext, useContext } from "react";
 import { useAsync } from "react-use";
 
 import { OnlyChildren } from "../utils.ts";
-import { LocationContext } from "./LocationContext.tsx";
-import { SelectedTranslationContext } from "./SelectedTranslationContext.tsx";
+import { useLocationContext } from "./LocationContext.tsx";
+import { useSelectedTranslationContext } from "./SelectedTranslationContext.tsx";
 
-type ChapterTextContextType =
-  | { loaded: false }
-  | { loaded: true; text: string };
+type ChapterTextContextType = { loaded: false } | { loaded: true; text: string };
 
-export const ChapterTextContext = createContext<ChapterTextContextType>({
-  loaded: false,
-});
+const ChapterTextContext = createContext<ChapterTextContextType | null>(null);
+
+export function useChapterTextContext(): ChapterTextContextType {
+  const context = useContext(ChapterTextContext);
+  if (!context) {
+    throw new Error("useChapterTextContext must be used within a ChapterTextProvider");
+  }
+  return context;
+}
 
 export function ChapterTextProvider({ children }: OnlyChildren) {
-  const { transCode, langCode } = useContext(SelectedTranslationContext);
+  const { transCode, langCode } = useSelectedTranslationContext();
   const {
     location: { bookCode, chapterNo },
-  } = useContext(LocationContext);
+  } = useLocationContext();
 
   const { value, loading } = useAsync(async () => {
     const response = await fetch(
@@ -28,13 +32,7 @@ export function ChapterTextProvider({ children }: OnlyChildren) {
   }, [transCode, langCode, bookCode, chapterNo]);
 
   return (
-    <ChapterTextContext.Provider
-      value={
-        value == null || loading
-          ? { loaded: false }
-          : { loaded: true, text: value }
-      }
-    >
+    <ChapterTextContext.Provider value={value == null || loading ? { loaded: false } : { loaded: true, text: value }}>
       {children}
     </ChapterTextContext.Provider>
   );

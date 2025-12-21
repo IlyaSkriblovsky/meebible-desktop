@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 import { useAsync } from "react-use";
 
 import { fetchAndParseXML, OnlyChildren } from "../utils.ts";
@@ -37,10 +37,15 @@ type TranslationsListContextType =
       loaded: true;
     } & LangsAndTranslations);
 
-export const TranslationsListContext =
-  createContext<TranslationsListContextType>({
-    loaded: false,
-  });
+const TranslationsListContext = createContext<TranslationsListContextType | null>(null);
+
+export function useTranslationsListContext(): TranslationsListContextType {
+  const context = useContext(TranslationsListContext);
+  if (!context) {
+    throw new Error("useTranslationsListContext must be used within a TranslationsListProvider");
+  }
+  return context;
+}
 
 function parseLanguagesAndTranslations(xml: Document): LangsAndTranslations {
   const languages: Language[] = [];
@@ -65,9 +70,7 @@ function parseLanguagesAndTranslations(xml: Document): LangsAndTranslations {
     const code = transElem.getAttribute("code");
     const sourceUrl = transElem.getAttribute("sourceUrl") || null;
     const copyright = transElem.getAttribute("copyright") || null;
-    const rtl = ["1", "true"].includes(
-      transElem.getAttribute("rtl") ?? "false",
-    );
+    const rtl = ["1", "true"].includes(transElem.getAttribute("rtl") ?? "false");
 
     if (code == null) {
       return;
@@ -116,9 +119,7 @@ export function TranslationsListProvider({ children }: OnlyChildren) {
   }, []);
 
   return (
-    <TranslationsListContext.Provider
-      value={value ? { loaded: true, ...value } : { loaded: false }}
-    >
+    <TranslationsListContext.Provider value={value ? { loaded: true, ...value } : { loaded: false }}>
       {children}
     </TranslationsListContext.Provider>
   );
