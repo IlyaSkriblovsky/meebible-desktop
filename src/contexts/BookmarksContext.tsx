@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
-import { useAsyncRetry } from "react-use";
+import { useAsyncRetry, useLocalStorage } from "react-use";
 
+import { AppRuntime, appRuntime, assertNever } from "../utils.ts";
 import { useDatabaseContext } from "./DatabaseContext.tsx";
 import { useLocationContext } from "./LocationContext.tsx";
 
@@ -26,7 +27,7 @@ const SELECT_BOOKMARKED_VERSES = "SELECT verseNo FROM bookmarks WHERE bookCode =
 const INSERT_BOOKMARK = "INSERT INTO bookmarks (bookCode, chapterNo, verseNo) VALUES (?, ?, ?)";
 const DELETE_BOOKMARK = "DELETE FROM bookmarks WHERE bookCode = ? AND chapterNo = ? AND verseNo = ?";
 
-export function BookmarksProvider({ children }: React.PropsWithChildren) {
+function TauriBookmarksProvider({ children }: React.PropsWithChildren) {
   const { select, executeSql } = useDatabaseContext();
   const { location } = useLocationContext();
 
@@ -58,4 +59,55 @@ export function BookmarksProvider({ children }: React.PropsWithChildren) {
   );
 
   return <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>;
+}
+
+type BookmarksByChapter = Record<string, number[] | undefined>;
+
+function uniqAndSort(items: Iterable<number>): number[] {
+  return Array.from(new Set(items)).sort((a, b) => a - b);
+}
+
+function WebBookmarksProvider({ children }: React.PropsWithChildren) {
+  const { location } = useLocationContext();
+  const [bookmarks, setBookmarks] = useLocalStorage<BookmarksByChapter>("bookmarks", {});
+
+  const storageKey = `${location.bookCode}:${location.chapterNo}`;
+  const bookmarkedVerses = bookmarks?.[storageKey] ?? [];
+
+  const value = useMemo(
+    (): BookmarksContextType => ({
+      loaded: bookmarks !== undefined,
+      bookmarkedVerses,
+      addVersesToBookmarks: async (verseNos: number[]) => {
+        setBookmarks({
+          ...bookmarks,
+          [storageKey]: uniqAndSort([...(bookmarks?.[storageKey] ?? []), ...verseNos]),
+        });
+      },
+      removeVersesFromBookmarks: async (verseNos: number[]) => {
+        const remaining = new Set(bookmarks?.[storageKey] ?? []);
+        verseNos.forEach((verseNo) => remaining.delete(verseNo));
+        const sorted = uniqAndSort(remaining);
+
+        setBookmarks({
+          ...bookmarks,
+          [storageKey]: sorted.length > 0 ? sorted : undefined,
+        });
+      },
+    }),
+    [bookmarkedVerses, bookmarks, setBookmarks, storageKey],
+  );
+
+  return <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>;
+}
+
+export function BookmarksProvider({ children }: React.PropsWithChildren) {
+  switch (appRuntime) {
+    case AppRuntime.TAURI:
+      return <TauriBookmarksProvider>{children}</TauriBookmarksProvider>;
+    case AppRuntime.WEB:
+      return <WebBookmarksProvider>{children}</WebBookmarksProvider>;
+    default:
+      assertNever(appRuntime);
+  }
 }

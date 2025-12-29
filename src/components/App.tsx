@@ -13,7 +13,7 @@ import { DatabaseProvider } from "../contexts/DatabaseContext.tsx";
 import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
-import { useDisableContextMenu } from "../utils.ts";
+import { AppRuntime, appRuntime, assertNever, useDisableContextMenu } from "../utils.ts";
 import { ChapterContent } from "./ChapterContent.tsx";
 import { StartupSender } from "./StartupSender.tsx";
 import { Topbar } from "./Topbar.tsx";
@@ -66,9 +66,11 @@ declare module "@mui/material/Button" {
 
 export function App() {
   useMount(() => {
-    setTimeout(() => {
-      getCurrentWindow().show().then();
-    }, 20);
+    if (appRuntime == "tauri") {
+      setTimeout(() => {
+        getCurrentWindow().show().then();
+      }, 20);
+    }
   });
 
   useDisableContextMenu();
@@ -107,8 +109,20 @@ export function App() {
     document.documentElement.setAttribute("theme", scheme);
   }, [prefersDarkMode]);
 
+  let OptionalDatabaseProvider: React.ComponentType<React.PropsWithChildren>;
+  switch (appRuntime) {
+    case AppRuntime.WEB:
+      OptionalDatabaseProvider = React.Fragment;
+      break;
+    case AppRuntime.TAURI:
+      OptionalDatabaseProvider = DatabaseProvider;
+      break;
+    default:
+      assertNever(appRuntime);
+  }
+
   return (
-    <DatabaseProvider>
+    <OptionalDatabaseProvider>
       <TranslationsListProvider>
         <SelectedTranslationProvider>
           <StartupSender />
@@ -126,6 +140,6 @@ export function App() {
           </BooksListProvider>
         </SelectedTranslationProvider>
       </TranslationsListProvider>
-    </DatabaseProvider>
+    </OptionalDatabaseProvider>
   );
 }

@@ -5,7 +5,7 @@ export interface OnlyChildren {
   children: ReactNode;
 }
 
-export function isTauriRuntime(): boolean {
+function isTauriRuntime(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -17,7 +17,12 @@ export function isTauriRuntime(): boolean {
   return "__TAURI__" in window || "__TAURI_INTERNALS__" in window;
 }
 
-export const appRuntime = isTauriRuntime() ? "tauri" : "web";
+// export type AppRuntime = "tauri" | "web";
+export enum AppRuntime {
+  TAURI = "tauri",
+  WEB = "web",
+}
+export const appRuntime: AppRuntime = isTauriRuntime() ? AppRuntime.TAURI : AppRuntime.WEB;
 
 export function useAppVersion(): string | undefined {
   const { value } = useAsync(async () => {
@@ -34,14 +39,9 @@ export function useAppVersion(): string | undefined {
 export async function fetchAndParseXML(url: string): Promise<Document> {
   const normalizedUrl = `https://meebible.org/${url.replace(/^\//, "")}`;
   const response = isTauriRuntime()
-    ? await (
-        await import("@tauri-apps/plugin-http")
-      ).fetch(normalizedUrl)
+    ? await (await import("@tauri-apps/plugin-http")).fetch(normalizedUrl)
     : await window.fetch(normalizedUrl);
-  return new window.DOMParser().parseFromString(
-    await response.text(),
-    "text/xml",
-  );
+  return new window.DOMParser().parseFromString(await response.text(), "text/xml");
 }
 
 export function useDisableContextMenu() {
@@ -55,4 +55,8 @@ export function lowerCaseRemoveDiacritics(str: string): string {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+}
+
+export function assertNever(value: never): never {
+  throw new Error("Unexpected value: " + value);
 }
