@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite --mode web",
     "build": "tsc && vite build",
+    "build:web": "tsc && vite build --mode web",
     "preview": "vite preview",
+    "preview:web": "vite preview --mode web",
     "tauri": "tauri",
     "tauri:dev": "tauri dev"
   },

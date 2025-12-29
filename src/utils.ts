@@ -1,5 +1,3 @@
-import { getVersion } from "@tauri-apps/api/app";
-import { fetch } from "@tauri-apps/plugin-http";
 import { ReactNode } from "react";
 import { useAsync } from "react-use";
 
@@ -7,15 +5,39 @@ export interface OnlyChildren {
   children: ReactNode;
 }
 
+export function isTauriRuntime(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  if (typeof __APP_RUNTIME__ !== "undefined") {
+    return __APP_RUNTIME__ === "tauri";
+  }
+
+  return "__TAURI__" in window || "__TAURI_INTERNALS__" in window;
+}
+
+export const appRuntime = isTauriRuntime() ? "tauri" : "web";
+
 export function useAppVersion(): string | undefined {
-  const { value } = useAsync(getVersion);
+  const { value } = useAsync(async () => {
+    if (!isTauriRuntime()) {
+      return undefined;
+    }
+
+    const { getVersion } = await import("@tauri-apps/api/app");
+    return getVersion();
+  });
   return value;
 }
 
 export async function fetchAndParseXML(url: string): Promise<Document> {
-  const response = await fetch(
-    `https://meebible.org/${url.replace(/^\//, "")}`,
-  );
+  const normalizedUrl = `https://meebible.org/${url.replace(/^\//, "")}`;
+  const response = isTauriRuntime()
+    ? await (
+        await import("@tauri-apps/plugin-http")
+      ).fetch(normalizedUrl)
+    : await window.fetch(normalizedUrl);
   return new window.DOMParser().parseFromString(
     await response.text(),
     "text/xml",
