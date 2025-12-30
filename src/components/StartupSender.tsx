@@ -1,8 +1,8 @@
-import { fetch } from "@tauri-apps/plugin-http";
 import { type } from "@tauri-apps/plugin-os";
 import { useAsync, useLocalStorage } from "react-use";
 
 import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
+import { universalFetch } from "../universalFetch.ts";
 
 export function StartupSender() {
   const [installId] = useLocalStorage("installId", crypto.randomUUID());
@@ -14,7 +14,7 @@ export function StartupSender() {
     }
 
     const osType = type();
-    await fetch("https://meebible.org/startup", {
+    await universalFetch("https://meebible.org/startup", {
       method: "POST",
       body: new URLSearchParams({
         os: osType,

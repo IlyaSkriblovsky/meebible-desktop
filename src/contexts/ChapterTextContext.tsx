@@ -1,7 +1,7 @@
-import { fetch } from "@tauri-apps/plugin-http";
 import { createContext, useContext } from "react";
 import { useAsync } from "react-use";
 
+import { universalFetch } from "../universalFetch.ts";
 import { OnlyChildren } from "../utils.ts";
 import { useLocationContext } from "./LocationContext.tsx";
 import { useSelectedTranslationContext } from "./SelectedTranslationContext.tsx";
@@ -25,7 +25,7 @@ export function ChapterTextProvider({ children }: OnlyChildren) {
   } = useLocationContext();
 
   const { value, loading } = useAsync(async () => {
-    const response = await fetch(
+    const response = await universalFetch(
       `https://meebible.org/chapter?trans=${transCode}&lang=${langCode}&book=${bookCode}&chapter=${chapterNo}`,
     );
     return await response.text();
