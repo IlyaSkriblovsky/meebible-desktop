@@ -1,6 +1,6 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Box, Button, ButtonOwnProps, Divider, Popover, Typography } from "@mui/material";
-import { MouseEvent, useState } from "react";
+import { Fragment, MouseEvent, useState } from "react";
 
 import { BookInfo, useBooksListContext } from "../contexts/BooksContext.tsx";
 import { useLocationContext } from "../contexts/LocationContext.tsx";
@@ -119,7 +119,7 @@ export function BookSelector() {
         open={open}
       >
         {Array.from(iterateBooksParts(books)).map(([, booksInPart], index) => (
-          <>
+          <Fragment key={index}>
             {index > -1 ? <Divider /> : null}
             <Box
               role="grid"
@@ -148,7 +148,7 @@ export function BookSelector() {
               ))}
               <div style={{ flex: 1 }} />
             </Box>
-          </>
+          </Fragment>
         ))}
       </Popover>
     </>
