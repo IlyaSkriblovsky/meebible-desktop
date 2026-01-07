@@ -6,11 +6,6 @@ import checker from "vite-plugin-checker";
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
-const isTauri = Boolean(
-  // @ts-expect-error process is a nodejs global
-  process.env.TAURI_PLATFORM || process.env.TAURI_FAMILY || process.env.TAURI_ARCH || process.env.TAURI_DEV_HOST,
-);
-
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [
@@ -21,7 +16,14 @@ export default defineConfig(async () => ({
     }),
   ],
   define: {
-    __APP_RUNTIME__: JSON.stringify(isTauri ? "tauri" : "web"),
+    // @ts-expect-error process is a nodejs global
+    __APP_RUNTIME__: JSON.stringify(process.env.TAURI_ENV_PLATFORM ? "tauri" : "web"),
+    // @ts-expect-error process is a nodejs global
+    __TAURI_PLATFORM_VERSION__: JSON.stringify(process.env.TAURI_ENV_PLATFORM_VERSION),
+    // @ts-expect-error process is a nodejs global
+    __TAURI_TARGET_TRIPLE__: JSON.stringify(process.env.TAURI_ENV_TARGET_TRIPLE),
+    // @ts-expect-error process is a nodejs global
+    __BUNDLE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
