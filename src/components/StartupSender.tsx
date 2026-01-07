@@ -1,9 +1,9 @@
 import { type } from "@tauri-apps/plugin-os";
 import { useAsync, useLocalStorage } from "react-use";
 
+import { postStartup } from "../api/post-startup.ts";
 import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
-import { universalFetch } from "../universalFetch.ts";
-import { randomString } from "../utils.ts";
+import { AppRuntime, appRuntime, assertNever, randomString } from "../utils.ts";
 
 export function StartupSender() {
   const [installId] = useLocalStorage("installId", randomString(36));
@@ -14,16 +14,19 @@ export function StartupSender() {
       return;
     }
 
-    const osType = type();
-    await universalFetch("https://meebible.org/startup", {
-      method: "POST",
-      body: new URLSearchParams({
-        os: osType,
-        device_id: installId ?? "_",
-        trans: transCode,
-        lang: langCode,
-      }),
-    });
+    let os: string;
+    switch (appRuntime) {
+      case AppRuntime.WEB:
+        os = "web";
+        break;
+      case AppRuntime.TAURI:
+        os = type();
+        break;
+      default:
+        assertNever(appRuntime);
+    }
+
+    await postStartup(os, installId ?? "_", transCode, langCode);
   }, []);
 
   return null;

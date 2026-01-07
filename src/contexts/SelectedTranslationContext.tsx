@@ -1,8 +1,9 @@
 import { createContext, useContext } from "react";
 import { useLocalStorage } from "react-use";
 
+import { Language, Translation, TranslationLanguage } from "../api/translations-list.ts";
 import { OnlyChildren } from "../utils.ts";
-import { Language, Translation, TranslationLanguage, useTranslationsListContext } from "./TranslationsListContext.tsx";
+import { useTranslationsListContext } from "./TranslationsListContext.tsx";
 
 interface SelectedTranslation {
   transCode: string;

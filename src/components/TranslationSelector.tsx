@@ -18,8 +18,9 @@ import {
 import React, { useMemo, useState } from "react";
 import { useToggle } from "react-use";
 
+import { Language, TranslationLanguage } from "../api/translations-list.ts";
 import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
-import { Language, TranslationLanguage, useTranslationsListContext } from "../contexts/TranslationsListContext.tsx";
+import { useTranslationsListContext } from "../contexts/TranslationsListContext.tsx";
 import { lowerCaseRemoveDiacritics } from "../utils.ts";
 
 interface TranslationsListProps {

@@ -12,6 +12,7 @@ if (appRuntime == AppRuntime.TAURI) {
   console.log("Tauri Target Triple", __TAURI_TARGET_TRIPLE__);
   console.log("Tauri Platform Version", __TAURI_PLATFORM_VERSION__);
 }
+console.log("import.meta.env", import.meta.env);
 console.groupEnd();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

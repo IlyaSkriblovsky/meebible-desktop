@@ -1,6 +1,6 @@
 import { ClientOptions } from "@tauri-apps/plugin-http";
 
-import { AppRuntime, appRuntime, assertNever } from "./utils.ts";
+import { AppRuntime, appRuntime, assertNever } from "../utils.ts";
 
 export async function universalFetch(
   url: URL | Request | string,
@@ -23,4 +23,10 @@ export async function universalFetch(
     default:
       assertNever(appRuntime);
   }
+}
+
+export async function fetchAndParseXML(url: string): Promise<Document> {
+  const normalizedUrl = `https://meebible.org/${url.replace(/^\//, "")}`;
+  const response = await universalFetch(normalizedUrl);
+  return new window.DOMParser().parseFromString(await response.text(), "text/xml");
 }

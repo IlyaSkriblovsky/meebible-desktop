@@ -1,8 +1,6 @@
 import { ReactNode } from "react";
 import { useAsync } from "react-use";
 
-import { universalFetch } from "./universalFetch.ts";
-
 export interface OnlyChildren {
   children: ReactNode;
 }
@@ -36,12 +34,6 @@ export function useAppVersion(): string | undefined {
     return getVersion();
   });
   return value;
-}
-
-export async function fetchAndParseXML(url: string): Promise<Document> {
-  const normalizedUrl = `https://meebible.org/${url.replace(/^\//, "")}`;
-  const response = await universalFetch(normalizedUrl);
-  return new window.DOMParser().parseFromString(await response.text(), "text/xml");
 }
 
 export function useDisableContextMenu() {

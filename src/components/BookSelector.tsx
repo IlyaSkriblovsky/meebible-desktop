@@ -2,7 +2,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Box, Button, ButtonOwnProps, Divider, Popover, Typography } from "@mui/material";
 import { Fragment, MouseEvent, useState } from "react";
 
-import { BookInfo, useBooksListContext } from "../contexts/BooksContext.tsx";
+import { BookInfo } from "../api/books-info.ts";
+import { useBooksListContext } from "../contexts/BooksContext.tsx";
 import { useLocationContext } from "../contexts/LocationContext.tsx";
 
 // prettier-ignore
