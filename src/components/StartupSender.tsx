@@ -3,9 +3,10 @@ import { useAsync, useLocalStorage } from "react-use";
 
 import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
 import { universalFetch } from "../universalFetch.ts";
+import { randomString } from "../utils.ts";
 
 export function StartupSender() {
-  const [installId] = useLocalStorage("installId", crypto.randomUUID());
+  const [installId] = useLocalStorage("installId", randomString(36));
   const { transCode, langCode } = useSelectedTranslationContext();
 
   useAsync(async () => {

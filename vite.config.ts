@@ -1,3 +1,4 @@
+import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
@@ -12,7 +13,13 @@ const isTauri = Boolean(
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), checker({ typescript: true })],
+  plugins: [
+    react(),
+    checker({ typescript: true }),
+    legacy({
+      targets: ["safari 13"],
+    }),
+  ],
   define: {
     __APP_RUNTIME__: JSON.stringify(isTauri ? "tauri" : "web"),
   },

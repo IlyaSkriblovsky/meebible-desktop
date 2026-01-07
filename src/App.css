@@ -22,43 +22,25 @@ html, body {
 
     .verse.bookmarked {
         background: #fff59d;
-        html[theme="dark"] & {
-            background: #806500;
-        }
 
         .z {
             background: #fff59d;
-            html[theme="dark"] & {
-                background: #806500;
-            }
         }
 
         .verse-label {
             color: #c38700;
-            html[theme="dark"] & {
-                color: #ffe08a;
-            }
         }
     }
 
     .verse.selected {
         background: #cde7ff;
-        html[theme="dark"] & {
-            background: #2f4d73;
-        }
 
         .z {
             background: #cde7ff;
-            html[theme="dark"] & {
-                background: #2f4d73;
-            }
         }
 
         .verse-label {
             color: #0b63c5;
-            html[theme="dark"] & {
-                color: #a8cfff;
-            }
         }
     }
 
@@ -81,9 +63,6 @@ html, body {
         text-indent: 0;
 
         color: #888;
-        html[theme="dark"] & {
-            color: #666;
-        }
     }
 
     .par {
@@ -127,15 +106,9 @@ html, body {
 
     .match {
         background: #8f8;
-        html[theme="dark"] & {
-            background: #060;
-        }
-    }
 
-    .match.current {
-        background: #f88;
-        html[theme="dark"] & {
-            background: #600;
+        &.current {
+            background: #f88;
         }
     }
 
@@ -147,3 +120,44 @@ html, body {
         background: none;
     }
 }
+
+html[theme="dark"] {
+    .bible-text {
+        .verse.bookmarked {
+            background: #806500;
+
+            .z {
+                background: #806500;
+            }
+
+            .verse-label {
+                color: #ffe08a;
+            }
+        }
+
+        .verse.selected {
+            background: #2f4d73;
+
+            .z {
+                background: #2f4d73;
+            }
+
+            .verse-label {
+                color: #a8cfff;
+            }
+        }
+
+        .verse-label {
+            color: #666;
+        }
+
+        .match {
+            background: #060;
+
+            &.current {
+                background: #600;
+            }
+        }
+    }
+}
+
