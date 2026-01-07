@@ -3,9 +3,12 @@ import React, { useMemo } from "react";
 
 export type SQLValue = string | number | boolean | null;
 
+export type Select = (query: string, params?: SQLValue[]) => Promise<unknown>;
+export type ExecuteSQL = (query: string, params?: SQLValue[]) => Promise<QueryResult>;
+
 export interface DatabaseContextType {
-  select: (query: string, params?: SQLValue[]) => Promise<unknown>;
-  executeSql: (query: string, params?: SQLValue[]) => Promise<QueryResult>;
+  select: Select;
+  executeSql: ExecuteSQL;
 }
 
 const DatabaseContext = React.createContext<DatabaseContextType | null>(null);

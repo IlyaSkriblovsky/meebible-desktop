@@ -19,7 +19,39 @@ pub fn run() {
                 PRIMARY KEY (bookCode, chapterNo, verseNo) ON CONFLICT IGNORE
             );",
             kind: MigrationKind::Up,
-        }
+        },
+        Migration {
+            version: 2,
+            description: "Create languages table",
+            sql: "CREATE TABLE languages (
+                code TEXT PRIMARY KEY,
+                engname TEXT NOT NULL,
+                selfname TEXT NOT NULL
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 3,
+            description: "Create translations table",
+            sql: "CREATE TABLE translations (
+                transCode TEXT PRIMARY KEY,
+                sourceUrl TEXT,
+                copyright TEXT,
+                rtl BOOLEAN
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 4,
+            description: "Create translationLanguages table",
+            sql: "CREATE TABLE translationLanguages (
+                transCode VARCHAR,
+                langCode VARCHAR,
+                name VARCHAR,
+                PRIMARY KEY (transCode, langCode)
+            );",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
