@@ -89,6 +89,11 @@ export function App() {
               disableRipple: true,
             },
           },
+          MuiButtonGroup: {
+            defaultProps: {
+              disableRipple: true,
+            },
+          },
         },
         palette: {
           primary: { main: mainColor },
