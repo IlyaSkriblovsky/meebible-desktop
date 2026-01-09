@@ -1,6 +1,7 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Box, Button, Popover } from "@mui/material";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useCallback, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { useBooksListContext } from "../contexts/BooksContext.tsx";
 import { useLocationContext } from "../contexts/LocationContext.tsx";
@@ -8,11 +9,22 @@ import { useLocationContext } from "../contexts/LocationContext.tsx";
 export function ChapterSelector() {
   const { location, goToChapter } = useLocationContext();
   const booksInfo = useBooksListContext();
+  const [triggerEl, setTriggerEl] = useState<HTMLButtonElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
-
-  const handleClose = () => setAnchorEl(null);
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget),
+    [setAnchorEl],
+  );
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
+  const toggleOpen = useCallback(() => {
+    if (anchorEl) {
+      handleClose();
+    } else if (triggerEl) {
+      setAnchorEl(triggerEl);
+    }
+  }, [anchorEl, handleClose, triggerEl]);
+  useHotkeys("c", toggleOpen, [toggleOpen]);
 
   const handleChapterSelect = (chapter: number) => {
     goToChapter(chapter);
@@ -41,6 +53,7 @@ export function ChapterSelector() {
         disabled={!currentBook}
         endIcon={<KeyboardArrowDownIcon />}
         onClick={handleClick}
+        ref={setTriggerEl}
         variant="outlined"
       >
         Chapter {location.chapterNo}

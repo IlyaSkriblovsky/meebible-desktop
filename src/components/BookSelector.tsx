@@ -1,6 +1,7 @@
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Box, Button, ButtonOwnProps, Divider, Popover, Typography } from "@mui/material";
-import { Fragment, MouseEvent, useState } from "react";
+import { Fragment, MouseEvent, useCallback, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { BookInfo } from "../api/books-info.ts";
 import { useBooksListContext } from "../contexts/BooksContext.tsx";
@@ -80,10 +81,23 @@ function* iterateBooksParts(books: BookInfo[]): Generator<[Part, BookInfo[]]> {
 export function BookSelector() {
   const { location, goToBook } = useLocationContext();
   const booksInfo = useBooksListContext();
+  const [triggerEl, setTriggerEl] = useState<HTMLButtonElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  const handleClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget),
+    [setAnchorEl],
+  );
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
+  const toggleOpen = useCallback(() => {
+    if (anchorEl) {
+      handleClose();
+    } else if (triggerEl) {
+      setAnchorEl(triggerEl);
+    }
+  }, [anchorEl, triggerEl, handleClose]);
+
+  useHotkeys("b", toggleOpen, [toggleOpen]);
 
   const handleBookSelect = (bookCode: string) => {
     goToBook(bookCode, 1);
@@ -106,7 +120,13 @@ export function BookSelector() {
 
   return (
     <>
-      <Button aria-describedby={id} endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} variant="outlined">
+      <Button
+        aria-describedby={id}
+        endIcon={<KeyboardArrowDownIcon />}
+        onClick={handleClick}
+        ref={setTriggerEl}
+        variant="outlined"
+      >
         {currentBookName || "Select a Book"}
       </Button>
       <Popover

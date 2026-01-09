@@ -15,7 +15,8 @@ import {
   ListSubheader,
   Menu,
 } from "@mui/material";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { useToggle } from "react-use";
 
 import { Language, TranslationLanguage } from "../api/translations-list.ts";
@@ -60,17 +61,29 @@ export function TranslationSelector() {
   const translationsContext = useTranslationsListContext();
   const { language, transLang, switchTranslation } = useSelectedTranslationContext();
 
+  const [search, setSearch] = useState("");
+
+  const [triggerEl, setTriggerEl] = useState<HTMLElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    },
+    [setAnchorEl],
+  );
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
     setSearch("");
-  };
-
-  const [search, setSearch] = useState("");
+  }, [setAnchorEl, setSearch]);
+  const toggleOpen = useCallback(() => {
+    if (anchorEl) {
+      handleClose();
+    } else if (triggerEl) {
+      setAnchorEl(triggerEl);
+    }
+  }, [anchorEl, handleClose, triggerEl]);
+  useHotkeys("t", toggleOpen, [toggleOpen]);
 
   const languages = useMemo(() => {
     const searchWithoutDiacritics = lowerCaseRemoveDiacritics(search.trim());
@@ -96,7 +109,7 @@ export function TranslationSelector() {
 
   return (
     <>
-      <Button endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} variant="outlined">
+      <Button endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} ref={setTriggerEl} variant="outlined">
         {transLang?.name ?? "Loading..."}
       </Button>
 
