@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useAsync, useAsyncRetry } from "react-use";
 import { SafeDictionary } from "ts-essentials";
 
@@ -136,7 +136,7 @@ async function saveTranslationListToCache(
 function CachedTranslationsListProvider({ children }: OnlyChildren) {
   const { select, executeSql } = useDatabaseContext();
 
-  const { value } = useAsyncRetry(async () => {
+  const { value, error } = useAsyncRetry(async () => {
     const cached = await loadCachedTranslationsList(select);
     if (cached.translations.length > 0) {
       return cached;
@@ -146,6 +146,8 @@ function CachedTranslationsListProvider({ children }: OnlyChildren) {
     await saveTranslationListToCache(executeSql, fetched);
     return fetched;
   }, [select, executeSql]);
+
+  useEffect(console.error, [error]);
 
   return (
     <TranslationsListContext.Provider value={value ? { loaded: true, ...value } : { loaded: false }}>

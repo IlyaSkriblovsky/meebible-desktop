@@ -52,6 +52,31 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "Create bookInfo and chapterSize tables",
+            sql: "
+            CREATE TABLE booksInfo (
+                transCode VARCHAR,
+                langCode VARCHAR,
+                bookNumber INTEGER,
+                bookCode VARCHAR,
+                bookName VARCHAR,
+                chaptersCount INTEGER,
+                PRIMARY KEY (transCode, langCode, bookNumber),
+                UNIQUE (transCode, langCode, bookCode)
+            );
+            CREATE TABLE chapterSize (
+                transCode VARCHAR,
+                langCode VARCHAR,
+                bookCode VARCHAR,
+                chapterNo INTEGER,
+                versesCount INTEGER,
+                PRIMARY KEY (transCode, langCode, bookCode, chapterNo)
+            );
+            ",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
