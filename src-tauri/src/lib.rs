@@ -77,6 +77,19 @@ pub fn run() {
             ",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "Create htmlCache table",
+            sql: "CREATE TABLE htmlCache (
+                transCode VARCHAR,
+                langCode VARCHAR,
+                bookCode VARCHAR,
+                chapterNo INTEGER,
+                html TEXT,
+                PRIMARY KEY (transCode, langCode, bookCode, chapterNo) ON CONFLICT REPLACE
+            );",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
