@@ -20,11 +20,9 @@ interface LocationContextType {
   hasNextChapter: boolean;
 
   goNextChapter(): void;
-
   goPrevChapter(): void;
 
   goToBook(bookCode: string, chapterNo?: number): void;
-
   goToChapter(chapterNo: number): void;
 }
 
