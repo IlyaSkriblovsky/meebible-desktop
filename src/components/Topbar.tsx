@@ -9,7 +9,7 @@ export function Topbar() {
   return (
     <AppBar color="default" elevation={0} enableColorOnDark position="static">
       <Toolbar>
-        <Stack direction={"row"} spacing={2} useFlexGap>
+        <Stack direction={"row"} spacing={2}>
           <BookSelector />
           <ChapterSelector />
           <PrevNextButtons />
