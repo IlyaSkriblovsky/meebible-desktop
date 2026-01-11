@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useAsync, useAsyncRetry } from "react-use";
 import { SafeDictionary } from "ts-essentials";
 
@@ -9,7 +9,7 @@ import {
   Translation,
   TranslationLanguage,
 } from "../api/translations-list.ts";
-import { AppRuntime, appRuntime, assertNever, OnlyChildren } from "../utils.ts";
+import { AppRuntime, appRuntime, assertNever, OnlyChildren, usePrintError } from "../utils.ts";
 import { ExecuteSQL, Select, SQLValue, useDatabaseContext } from "./DatabaseContext.tsx";
 
 type TranslationsListContextType =
@@ -146,8 +146,7 @@ function CachedTranslationsListProvider({ children }: OnlyChildren) {
     await saveTranslationListToCache(executeSql, fetched);
     return fetched;
   }, [select, executeSql]);
-
-  useEffect(console.error, [error]);
+  usePrintError(error);
 
   return (
     <TranslationsListContext.Provider value={value ? { loaded: true, ...value } : { loaded: false }}>

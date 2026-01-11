@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useAsync, useAsyncRetry } from "react-use";
 import { SafeDictionary } from "ts-essentials";
 
 import { BookInfo, BooksInfo, fetchBooksInfo } from "../api/books-info.ts";
-import { AppRuntime, appRuntime, assertNever, OnlyChildren } from "../utils.ts";
+import { AppRuntime, appRuntime, assertNever, OnlyChildren, usePrintError } from "../utils.ts";
 import { ExecuteSQL, Select, SQLValue, useDatabaseContext } from "./DatabaseContext.tsx";
 import { useSelectedTranslationContext } from "./SelectedTranslationContext.tsx";
 
@@ -133,8 +133,7 @@ function CachedBooksListProvider({ children }: OnlyChildren) {
     await saveBooksInfoToCache(executeSql, transCode, langCode, fetched);
     return fetched;
   }, [select, executeSql, transCode, langCode]);
-
-  useEffect(console.error, [error]);
+  usePrintError(error);
 
   return (
     <BooksListContext.Provider value={value ? { loaded: true, ...value } : { loaded: false }}>

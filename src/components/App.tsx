@@ -8,13 +8,15 @@ import { useMount } from "react-use";
 
 import { BookmarksProvider } from "../contexts/BookmarksContext.tsx";
 import { BooksListProvider } from "../contexts/BooksContext.tsx";
-import { ChapterTextProvider } from "../contexts/ChapterTextContext.tsx";
-import { DatabaseProvider } from "../contexts/DatabaseContext.tsx";
+import { CacheContextProvider } from "../contexts/ChapterCacheContext.tsx";
+import { OptionalDatabaseProvider } from "../contexts/DatabaseContext.tsx";
 import { LocationProvider } from "../contexts/LocationContext.tsx";
 import { SelectedTranslationProvider } from "../contexts/SelectedTranslationContext.tsx";
+import { TranslationDownloadingContextProvider } from "../contexts/TranslationDownloadingContext.tsx";
 import { TranslationsListProvider } from "../contexts/TranslationsListContext.tsx";
-import { AppRuntime, appRuntime, assertNever, useDisableContextMenu } from "../utils.ts";
+import { appRuntime, useDisableContextMenu } from "../utils.ts";
 import { ChapterContent } from "./ChapterContent.tsx";
+import { DownloadingSnackbar } from "./DownloadingSnackbar.tsx";
 import { StartupSender } from "./StartupSender.tsx";
 import { Topbar } from "./Topbar.tsx";
 
@@ -32,16 +34,19 @@ function Home() {
 
 function Shell() {
   return (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        bgcolor: "background.default",
-      }}
-    >
-      <Home />
-    </Box>
+    <>
+      <Box
+        sx={{
+          width: "100vw",
+          height: "100vh",
+          overflow: "hidden",
+          bgcolor: "background.default",
+        }}
+      >
+        <Home />
+      </Box>
+      <DownloadingSnackbar />
+    </>
   );
 }
 
@@ -114,18 +119,6 @@ export function App() {
     document.documentElement.setAttribute("theme", scheme);
   }, [prefersDarkMode]);
 
-  let OptionalDatabaseProvider: React.ComponentType<React.PropsWithChildren>;
-  switch (appRuntime) {
-    case AppRuntime.WEB:
-      OptionalDatabaseProvider = React.Fragment;
-      break;
-    case AppRuntime.TAURI:
-      OptionalDatabaseProvider = DatabaseProvider;
-      break;
-    default:
-      assertNever(appRuntime);
-  }
-
   return (
     <OptionalDatabaseProvider>
       <TranslationsListProvider>
@@ -134,12 +127,14 @@ export function App() {
           <BooksListProvider>
             <LocationProvider>
               <BookmarksProvider>
-                <ChapterTextProvider>
-                  <ThemeProvider theme={theme}>
-                    <CssBaseline />
-                    <Shell />
-                  </ThemeProvider>
-                </ChapterTextProvider>
+                <CacheContextProvider>
+                  <TranslationDownloadingContextProvider>
+                    <ThemeProvider theme={theme}>
+                      <CssBaseline />
+                      <Shell />
+                    </ThemeProvider>
+                  </TranslationDownloadingContextProvider>
+                </CacheContextProvider>
               </BookmarksProvider>
             </LocationProvider>
           </BooksListProvider>

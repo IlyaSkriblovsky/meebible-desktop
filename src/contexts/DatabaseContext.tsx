@@ -1,6 +1,8 @@
 import Database, { QueryResult } from "@tauri-apps/plugin-sql";
 import React, { useMemo } from "react";
 
+import { AppRuntime, appRuntime, assertNever, OnlyChildren } from "../utils.ts";
+
 export type SQLValue = string | number | boolean | null;
 
 export type Select = (query: string, params?: SQLValue[]) => Promise<unknown>;
@@ -13,7 +15,7 @@ export interface DatabaseContextType {
 
 const DatabaseContext = React.createContext<DatabaseContextType | null>(null);
 
-export function DatabaseProvider({ children }: React.PropsWithChildren) {
+function DatabaseProvider({ children }: React.PropsWithChildren) {
   const dbPromise = useMemo(() => {
     return Database.load("sqlite:meebible.db");
   }, []);
@@ -41,4 +43,15 @@ export function useDatabaseContext(): DatabaseContextType {
     throw new Error("useDatabaseContext must be used within a DatabaseProvider");
   }
   return context;
+}
+
+export function OptionalDatabaseProvider({ children }: OnlyChildren) {
+  switch (appRuntime) {
+    case AppRuntime.TAURI:
+      return <DatabaseProvider>{children}</DatabaseProvider>;
+    case AppRuntime.WEB:
+      return <>{children}</>;
+    default:
+      assertNever(appRuntime);
+  }
 }

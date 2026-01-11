@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useBookmarksContext } from "../contexts/BookmarksContext.tsx";
-import { useChapterTextContext } from "../contexts/ChapterTextContext.tsx";
+import { useCurrentChapterTextContext } from "../contexts/ChapterCacheContext.tsx";
 import { useLocationContext } from "../contexts/LocationContext.tsx";
 import { SelectedVersesToolbar, ToolbarPosition } from "./SelectedVersesToolbar.tsx";
 
@@ -31,7 +31,7 @@ function useBookmarksLogic(selectedVerses: number[]) {
 
 export function ChapterContent() {
   const { location } = useLocationContext();
-  const chapterText = useChapterTextContext();
+  const chapterText = useCurrentChapterTextContext();
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);

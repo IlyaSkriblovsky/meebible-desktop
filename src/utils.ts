@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useAsync } from "react-use";
 
 export interface OnlyChildren {
@@ -62,4 +62,12 @@ export function randomString(length: number): string {
   }
 
   return result;
+}
+
+export function usePrintError(error: Error | string | null | undefined): void {
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+    }
+  }, [error]);
 }

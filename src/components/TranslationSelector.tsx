@@ -4,6 +4,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Button,
+  ButtonGroup,
   Collapse,
   Divider,
   Input,
@@ -21,8 +22,10 @@ import { useToggle } from "react-use";
 
 import { Language, TranslationLanguage } from "../api/translations-list.ts";
 import { useSelectedTranslationContext } from "../contexts/SelectedTranslationContext.tsx";
+import { useTranslationDownloadingContext } from "../contexts/TranslationDownloadingContext.tsx";
 import { useTranslationsListContext } from "../contexts/TranslationsListContext.tsx";
 import { lowerCaseRemoveDiacritics } from "../utils.ts";
+import { TranslationDownloadButton } from "./TranslationDownloadButton.tsx";
 
 interface TranslationsListProps {
   language: Language;
@@ -102,16 +105,34 @@ export function TranslationSelector() {
     );
   }, [search, translationsContext]);
 
-  const onSelectTranslation = (transLang: TranslationLanguage) => {
-    switchTranslation(transLang.translation.code, transLang.language.code);
-    handleClose();
-  };
+  const onSelectTranslation = useCallback(
+    (transLang: TranslationLanguage) => {
+      switchTranslation(transLang.translation.code, transLang.language.code);
+      handleClose();
+    },
+    [switchTranslation, handleClose],
+  );
+
+  const { isSupported: isDownloadingSupported } = useTranslationDownloadingContext();
+
+  const dropdown = (
+    <Button endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} ref={setTriggerEl} variant="outlined">
+      {transLang?.name ?? "Loading..."}
+    </Button>
+  );
+
+  const button = isDownloadingSupported ? (
+    <ButtonGroup>
+      {dropdown}
+      <TranslationDownloadButton />
+    </ButtonGroup>
+  ) : (
+    dropdown
+  );
 
   return (
     <>
-      <Button endIcon={<KeyboardArrowDownIcon />} onClick={handleClick} ref={setTriggerEl} variant="outlined">
-        {transLang?.name ?? "Loading..."}
-      </Button>
+      {button}
 
       <Menu anchorEl={anchorEl} onClose={handleClose} open={open}>
         {language
